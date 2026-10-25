@@ -1,4 +1,4 @@
-import { buildInput, LLAMA, MISTRAL } from "./prompt.js";
+import { buildInput, LLAMA, MISTRAL, PROMPT } from "./prompt.js";
 import { parseDescription, isCandidate } from "../public/js/engine/parse.js";
 import { estimateNeurons, RESERVE } from "./budget-core.js";
 
@@ -40,40 +40,61 @@ function withTimeout(p, ms) {
 }
 
 // One model call, retried once on a transient error. Quota errors are not retried.
-async function describe(env, model, dataUrl) {
+// Every attempt is charged through charge(): the usage estimate when the model reports usage, else the
+// fallback estimate. A failed or timed-out attempt may still have spent neurons, so it is never free.
+async function describe(env, model, dataUrl, charge) {
   let lastErr;
   for (let attempt = 0; attempt < 2; attempt++) {
+    let out;
     try {
-      const out = await withTimeout(env.AI.run(model, buildInput(dataUrl)), TIMEOUT_MS);
-      const parsed = parseDescription(out && out.response !== undefined ? out.response : out);
-      const neurons = estimateNeurons(model, out && out.usage);
-      if (parsed && parsed.ui_share) return { parsed, neurons };
-      lastErr = new Error("unreadable_answer");
+      out = await withTimeout(env.AI.run(model, buildInput(dataUrl)), TIMEOUT_MS);
     } catch (err) {
+      charge(estimateNeurons(model, null));
       if (isQuotaError(err)) {
         const e = new Error("ai_quota");
         e.code = "ai_quota";
         throw e;
       }
       lastErr = err;
+      continue;
     }
+    charge(estimateNeurons(model, out && out.usage));
+    const parsed = parseDescription(out && out.response !== undefined ? out.response : out);
+    if (parsed && parsed.ui_share) return parsed;
+    lastErr = new Error("unreadable_answer");
   }
   const e = new Error(String(lastErr && lastErr.message ? lastErr.message : lastErr).slice(0, 200));
   e.code = "model_failed";
   throw e;
 }
 
+const hex = (buf) => [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, "0")).join("");
+
 async function sha(s) {
-  const d = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s));
-  return [...new Uint8Array(d)].map((b) => b.toString(16).padStart(2, "0")).join("").slice(0, 32);
+  return hex(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s))).slice(0, 32);
 }
 
-function originOk(request) {
+// Cache key: SHA-256 of the JPEG bytes plus the models and prompt, so a prompt change starts a fresh cache.
+export async function cacheKey(bytes) {
+  const tag = new TextEncoder().encode(LLAMA + "|" + MISTRAL + "|" + PROMPT + "|");
+  const all = new Uint8Array(tag.length + bytes.length);
+  all.set(tag); all.set(bytes, tag.length);
+  return hex(await crypto.subtle.digest("SHA-256", all));
+}
+
+export function nextResetIso(now = new Date()) {
+  return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1)).toISOString();
+}
+
+const isDev = (env) => String(env.DEV) === "1";
+
+// Same host only. Other localhost ports are allowed only when the DEV variable is set.
+function originOk(request, env) {
   const origin = request.headers.get("origin");
   if (!origin) return false;
   try {
     const o = new URL(origin), u = new URL(request.url);
-    return o.host === u.host || o.hostname === "localhost" || o.hostname === "127.0.0.1";
+    return o.host === u.host || (isDev(env) && (o.hostname === "localhost" || o.hostname === "127.0.0.1"));
   } catch {
     return false;
   }
@@ -81,7 +102,9 @@ function originOk(request) {
 
 export async function handleLook(request, env) {
   if (request.method !== "POST") return json(405, { error: "method" });
-  if (!originOk(request)) return json(403, { error: "origin" });
+  if (!originOk(request, env)) return json(403, { error: "origin" });
+  const declared = Number(request.headers.get("content-length"));
+  if (Number.isFinite(declared) && declared > MAX_BODY) return json(413, { error: "too_large" });
   const text = await request.text();
   if (text.length > MAX_BODY) return json(413, { error: "too_large" });
   let body;
@@ -90,34 +113,45 @@ export async function handleLook(request, env) {
   const video = String((body && body.video) || "").slice(0, 64);
   if (typeof image !== "string" || !image.startsWith("data:image/jpeg;base64,")) return json(400, { error: "not_an_image" });
   if (!/^[a-z0-9-]{4,64}$/.test(video)) return json(400, { error: "no_video_id" });
-  let size;
-  try { size = jpegSize(b64bytes(image.slice(23))); } catch { size = null; }
+  let bytes, size;
+  try { bytes = b64bytes(image.slice(23)); size = jpegSize(bytes); } catch { size = null; }
   if (!size || size.width !== 1024 || size.height !== 288) return json(400, { error: "wrong_size" });
-
-  if (String(env.AI_DISABLED) === "1") return json(503, { error: "model_off" });
+  // Without a secret salt the visitor hash is guessable, so production refuses to run.
+  if (!env.IP_SALT && !isDev(env)) return json(503, { error: "not_configured" });
 
   const day = new Date().toISOString().slice(0, 10);
   const ip = request.headers.get("cf-connecting-ip") || "local";
   const visitor = await sha(ip + "|" + day + "|" + (env.IP_SALT || "dev"));
   const budget = env.BUDGET.get(env.BUDGET.idFromName(day));
+  const cache = env.BUDGET.get(env.BUDGET.idFromName("cache"));
+
+  // A picture already answered costs no neurons and does not count against the neuron cap.
+  const key = await cacheKey(bytes);
+  const hit = await cache.cacheGet(key);
+  if (hit) {
+    const h = await budget.countHit(visitor);
+    if (!h.ok) return json(429, { error: h.error });
+    return json(200, { ...hit, cached: true, neurons_used_estimate: 0 });
+  }
+
+  if (String(env.AI_DISABLED) === "1") return json(503, { error: "model_off" });
+
   const r = await budget.reserve(visitor, video, RESERVE);
-  if (!r.ok) return json(429, { error: r.error });
+  if (!r.ok) return json(429, r.error === "daily_cap" ? { error: r.error, resets_at: nextResetIso() } : { error: r.error });
 
   let spent = 0, llama = null, mistral = null;
+  const charge = (n) => { spent += n; };
   try {
-    const l = await describe(env, LLAMA, image);
-    spent += l.neurons;
-    llama = l.parsed;
-    if (isCandidate(llama)) {
-      const m = await describe(env, MISTRAL, image);
-      spent += m.neurons;
-      mistral = m.parsed;
-    }
+    llama = await describe(env, LLAMA, image, charge);
+    if (isCandidate(llama)) mistral = await describe(env, MISTRAL, image, charge);
   } catch (err) {
     await budget.settle(spent - RESERVE);
-    return json(err.code === "ai_quota" ? 429 : 502, { error: err.code || "model_failed" });
+    const code = err.code || "model_failed";
+    return json(code === "ai_quota" ? 429 : 502, code === "ai_quota" ? { error: code, resets_at: nextResetIso() } : { error: code });
   }
   await budget.settle(spent - RESERVE);
   const app = isCandidate(llama) && !!mistral && mistral.ui_share !== "none";
-  return json(200, { app, llama, mistral, neurons_used_estimate: Math.round(spent * 10) / 10 });
+  const answer = { app, llama, mistral };
+  await cache.cachePut(key, answer);
+  return json(200, { ...answer, neurons_used_estimate: Math.round(spent * 10) / 10 });
 }

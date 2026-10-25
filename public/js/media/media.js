@@ -1,7 +1,6 @@
-// Browser-only: the local <video>, frame grabs, composites and the 30 fps refine.
+// Browser-only: the local <video>, frame grabs, composites and the frame-exact refine.
 import { gridFromRGBA, meanAbsDiff } from "../engine/grid.js";
-import { round2 } from "../engine/shots.js";
-import { REFINE_FPS } from "../engine/detect.js";
+import { refineFrames, frameStart } from "../engine/detect.js";
 
 const GRAB_W = 256, GRAB_H = 144; // 8x the 32x18 grid, then area-averaged
 const EPS = 0.001;
@@ -63,10 +62,11 @@ export function estimateFps(v) {
 }
 
 // 2 fps grids over the first min(duration, cap) seconds, with a small thumbnail per sample.
-export async function sample(v, { fps = 2, cap = 180, onProgress = () => {} } = {}) {
+export async function sample(v, { fps = 2, cap = 180, onProgress = () => {}, cancelled = () => false } = {}) {
   const end = Math.min(v.duration, cap);
   const grids = [], thumbs = [];
   for (let i = 0; i / fps < end - 0.01; i++) {
+    if (cancelled()) break;
     const t = i / fps;
     grids.push(await gridAt(v, t));
     thumbCtx.drawImage(v, 0, 0, 128, 72);
@@ -95,13 +95,14 @@ export async function composite(v, t, ref) {
   return c.toDataURL("image/jpeg", 0.85);
 }
 
-// Step at 30 fps from the last NO time to the YES time; first frame closer to YES wins.
-export async function refine(v, noT, yesT) {
+// Step through every real frame (at the video's rate) from the last NO time to the YES time.
+// Returns the unrounded start time of the first frame closer to YES; frameAt() floors it back to that frame.
+export async function refine(v, noT, yesT, rate) {
   const y = await gridAt(v, yesT), n = await gridAt(v, noT);
-  const count = Math.floor((yesT - noT) * REFINE_FPS + 1e-6) + 1;
-  for (let i = 0; i < count; i++) {
-    const f = await gridAt(v, noT + i / REFINE_FPS);
-    if (meanAbsDiff(f, y) < meanAbsDiff(f, n)) return round2(noT + i / REFINE_FPS);
+  const list = refineFrames(noT, yesT, rate);
+  for (const f of list) {
+    const g = await gridAt(v, f.seekT);
+    if (meanAbsDiff(g, y) < meanAbsDiff(g, n)) return frameStart(f.index, rate);
   }
-  return round2(yesT);
+  return frameStart(list[list.length - 1].index, rate);
 }

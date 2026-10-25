@@ -33,3 +33,10 @@ export function isNearBlack(g) {
   for (let i = 0; i < g.length; i++) { s += g[i]; if (g[i] > max) max = g[i]; }
   return s / g.length < 0.04 && max < 0.12;
 }
+
+// Near-uniform frames (a solid color, a blank fade) cannot be an app screen: every cell within 0.1 of every other.
+export function isNearUniform(g) {
+  let min = 1, max = 0;
+  for (let i = 0; i < g.length; i++) { if (g[i] < min) min = g[i]; if (g[i] > max) max = g[i]; }
+  return max - min < 0.1;
+}

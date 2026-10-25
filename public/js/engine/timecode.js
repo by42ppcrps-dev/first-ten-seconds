@@ -23,8 +23,9 @@ export function rateInfo(fps, drop) {
   return { ...best, fps: best.num / best.den, ntsc: best.den === 1001, drop: canDrop && !!drop, canDrop };
 }
 
+// The frame shown at time t is the one that contains t, so floor (with a small tolerance for float error).
 export function frameAt(t, rate) {
-  return Math.round(t * rate.fps + 1e-9);
+  return Math.floor((t * rate.num) / rate.den + 1e-6);
 }
 
 export function secondsAt(frame, rate) {
@@ -58,6 +59,12 @@ export function framesFromHMSF(h, m, s, f, rate) {
     n -= dropN * (mins - Math.floor(mins / 10));
   }
   return n;
+}
+
+// Big readout in plain seconds, so ".27" is not read as frames: 12.27 s
+export function seconds(t) {
+  if (t === null || t === undefined || Number.isNaN(t)) return "--.-- s";
+  return (Math.round(t * 100) / 100).toFixed(2) + " s";
 }
 
 // Human display, minutes:seconds with two decimals: 0:12.27

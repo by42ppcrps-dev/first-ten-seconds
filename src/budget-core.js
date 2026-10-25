@@ -2,7 +2,10 @@
 export const DAILY_NEURON_CAP = 6000; // leaves room for Can I Park Here on the same free account
 export const LOOKS_PER_VISITOR_DAY = 40;
 export const LOOKS_PER_VIDEO = 25;
-export const RESERVE = 70; // one Llama call (25) plus one Mistral call (45)
+// Worst case for one look: Llama and Mistral, each tried twice, with headroom over the fallback estimates.
+// Reserved up front so the cap holds even when every attempt fails; settled to the real charge after.
+export const RESERVE = 2 * (30 + 50);
+export const CACHED_LOOKS_PER_VISITOR_DAY = 400; // cached answers cost no neurons; this only stops abuse
 
 // Neurons per million tokens (Assumption: copied from the Workers AI pricing page; recheck).
 const RATES = {
@@ -32,6 +35,14 @@ export function reserve(store, visitor, video, amount = RESERVE) {
   return { ok: true, used: used + amount };
 }
 
+// Count one cached answer for a visitor. Does not touch the neuron count.
+export function countHit(store, visitor) {
+  const k = "hit:" + visitor, n = store.get(k);
+  if (n >= CACHED_LOOKS_PER_VISITOR_DAY) return { ok: false, error: "visitor_cap" };
+  store.set(k, n + 1);
+  return { ok: true };
+}
+
 export function settle(store, delta) {
   const used = store.get("neurons");
   store.set("neurons", Math.max(0, used + delta));
@@ -41,4 +52,10 @@ export function settle(store, delta) {
 export function memoryStore() {
   const m = new Map();
   return { get: (k) => m.get(k) || 0, set: (k, v) => m.set(k, v) };
+}
+
+// In-memory answer cache with the same shape as the Durable Object's (tests and local fakes).
+export function memoryCache() {
+  const m = new Map();
+  return { get: async (k) => (m.has(k) ? m.get(k) : null), put: async (k, v) => { m.set(k, v); }, size: () => m.size };
 }

@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { handleLook, jpegSize } from "../src/look.js";
-import { reserve, memoryStore, estimateNeurons, DAILY_NEURON_CAP, LOOKS_PER_VIDEO } from "../src/budget-core.js";
+import { reserve, settle, countHit, memoryStore, memoryCache, estimateNeurons, DAILY_NEURON_CAP, LOOKS_PER_VIDEO, RESERVE } from "../src/budget-core.js";
 
 // Minimal JPEG header with a SOF0 of the given size.
 function fakeJpeg(w, h) {
@@ -9,33 +9,44 @@ function fakeJpeg(w, h) {
   return "data:image/jpeg;base64," + Buffer.from(b).toString("base64");
 }
 
+// Fake AI binding and Durable Objects; no network. answers.llama / answers.mistral: a value, an Error,
+// or a function of the call number.
 function fakeEnv(answers, opts = {}) {
   const store = memoryStore();
+  const cache = memoryCache();
   const calls = [];
   return {
     calls,
     store,
+    cache,
+    DEV: opts.prod ? "0" : "1",
+    IP_SALT: opts.salt,
     AI_DISABLED: opts.off ? "1" : "0",
     AI: {
       async run(model, input) {
         calls.push(model);
-        const a = answers[model.includes("llama") ? "llama" : "mistral"];
+        let a = answers[model.includes("llama") ? "llama" : "mistral"];
+        if (typeof a === "function") a = a(calls.length);
         if (a instanceof Error) throw a;
-        return { response: a, usage: { prompt_tokens: 1000, completion_tokens: 20 } };
+        return opts.noUsage ? { response: a } : { response: a, usage: { prompt_tokens: 1000, completion_tokens: 20 } };
       },
     },
     BUDGET: {
       idFromName: (d) => d,
-      get: () => ({
-        reserve: async (v, vid, amt) => reserve(store, v, vid, amt),
-        settle: async (d) => store.set("neurons", store.get("neurons") + d),
-      }),
+      get: (name) => name === "cache"
+        ? { cacheGet: cache.get, cachePut: cache.put }
+        : {
+            reserve: async (v, vid, amt) => reserve(store, v, vid, amt),
+            settle: async (d) => settle(store, d),
+            countHit: async (v) => countHit(store, v),
+          },
     },
   };
 }
 
-const req = (body, origin = "http://localhost:8787") =>
-  new Request("http://localhost:8787/api/look", { method: "POST", headers: { origin, "content-type": "application/json" }, body: JSON.stringify(body) });
+const req = (body, origin = "http://localhost:8787", headers = {}) =>
+  new Request("http://localhost:8787/api/look", { method: "POST", headers: { origin, "content-type": "application/json", ...headers }, body: JSON.stringify(body) });
+const APP = '{"ui_share":"all","headline":false,"photo":false}';
 const good = { image: fakeJpeg(1024, 288), video: "test-video-1" };
 
 test("jpegSize reads SOF", () => {
@@ -84,11 +95,72 @@ test("4006 maps to ai_quota 429 and is not retried", async () => {
   assert.equal(env.calls.length, 1);
 });
 
-test("transient error retried once, then model_failed", async () => {
+test("transient error retried once, then model_failed, and both attempts are charged", async () => {
   const env = fakeEnv({ llama: new Error("socket hang up") });
   const r = await handleLook(req(good), env);
   assert.equal(r.status, 502);
+  assert.equal((await r.json()).error, "model_failed");
   assert.equal(env.calls.length, 2);
+  assert.equal(env.store.get("neurons"), 2 * estimateNeurons("@cf/meta/llama-4-scout-17b-16e-instruct", null));
+  assert.equal(env.cache.size(), 0);
+});
+
+test("unreadable answers are charged from usage, or the fallback when there is no usage", async () => {
+  const env = fakeEnv({ llama: "no json" });
+  await handleLook(req(good), env);
+  assert.equal(env.store.get("neurons"), 2 * estimateNeurons("@cf/meta/llama-4-scout-17b-16e-instruct", { prompt_tokens: 1000, completion_tokens: 20 }));
+  const env2 = fakeEnv({ llama: APP, mistral: () => new Error("timeout") }, { noUsage: true });
+  const r = await handleLook(req(good), env2);
+  assert.equal(r.status, 502);
+  assert.equal(env2.calls.length, 3);
+  assert.equal(env2.store.get("neurons"), 25 + 45 + 45);
+});
+
+test("daily cap: 429 with reset time, zero model calls, and the cap stays at or under 6,000", async () => {
+  assert.ok(DAILY_NEURON_CAP <= 6000);
+  const env = fakeEnv({ llama: APP, mistral: APP });
+  env.store.set("neurons", DAILY_NEURON_CAP - RESERVE + 1);
+  const r = await handleLook(req(good), env);
+  assert.equal(r.status, 429);
+  const b = await r.json();
+  assert.equal(b.error, "daily_cap");
+  assert.match(b.resets_at, /T00:00:00\.000Z$/);
+  assert.equal(env.calls.length, 0);
+  // Worst case for one look (both models, both retried) never pushes the day past the cap.
+  const s = memoryStore();
+  while (reserve(s, "v" + Math.random(), "x", RESERVE).ok) settle(s, 2 * 25 + 2 * 45 - RESERVE);
+  assert.ok(s.get("neurons") <= DAILY_NEURON_CAP);
+});
+
+test("cache hit: same picture costs zero neurons, zero calls, and works while the cap is reached", async () => {
+  const env = fakeEnv({ llama: APP, mistral: APP });
+  const first = await (await handleLook(req(good), env)).json();
+  assert.equal(first.app, true);
+  assert.equal(env.calls.length, 2);
+  const spent = env.store.get("neurons");
+  env.store.set("neurons", DAILY_NEURON_CAP);
+  const r = await handleLook(req(good), env);
+  assert.equal(r.status, 200);
+  const again = await r.json();
+  assert.equal(again.cached, true);
+  assert.equal(again.app, true);
+  assert.equal(again.neurons_used_estimate, 0);
+  assert.equal(env.calls.length, 2);
+  assert.equal(env.store.get("neurons"), DAILY_NEURON_CAP);
+  assert.ok(spent > 0);
+  // A different picture is not a hit.
+  assert.equal((await handleLook(req({ image: "data:image/jpeg;base64," + Buffer.concat([Buffer.from(fakeJpeg(1024, 288).slice(23), "base64"), Buffer.from([1, 2, 3])]).toString("base64"), video: "test-video-1" }), env)).status, 429);
+});
+
+test("hardening: salt required in production, localhost ports only in dev, content-length checked", async () => {
+  const prod = fakeEnv({ llama: APP }, { prod: true });
+  assert.equal((await (await handleLook(req(good), prod)).json()).error, "not_configured");
+  assert.equal(prod.calls.length, 0);
+  assert.equal((await handleLook(req(good, "http://localhost:3000"), prod)).status, 403);
+  const dev = fakeEnv({ llama: '{"ui_share":"none","headline":false,"photo":false}' });
+  assert.equal((await handleLook(req(good, "http://localhost:3000"), dev)).status, 200);
+  const big = new Request("http://localhost:8787/api/look", { method: "POST", headers: { origin: "http://localhost:8787", "content-length": String(400 * 1024) }, body: "x" });
+  assert.equal((await handleLook(big, dev)).status, 413);
 });
 
 test("budget caps", () => {

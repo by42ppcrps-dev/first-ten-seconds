@@ -2,7 +2,8 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { GW, GH, gridFromRGBA, meanAbsDiff, isNearBlack } from "../public/js/engine/grid.js";
 import { shotStarts, shotSampleTime } from "../public/js/engine/shots.js";
-import { buildShots, detect, refinePick, bracketForPick } from "../public/js/engine/detect.js";
+import { buildShots, detect, refinePick, refineFrames, frameStart, bracketForPick } from "../public/js/engine/detect.js";
+import { rateInfo, frameAt } from "../public/js/engine/timecode.js";
 import { parseDescription, isCandidate, isApp } from "../public/js/engine/parse.js";
 
 const N = GW * GH * 3;
@@ -71,12 +72,35 @@ test("no app found returns none", async () => {
   assert.equal(r.status, "none");
 });
 
-test("refinePick takes the first frame closer to YES than NO (crossfade)", () => {
-  const no = flat(0), yes = flat(1);
+test("refinePick takes the first frame closer to YES than NO (crossfade) and returns its index", () => {
+  const no = flat(0), yes = flat(1), rate = rateInfo(30);
+  const list = refineFrames(12, 12.2, rate);
   const frames = [0, 0.1, 0.3, 0.45, 0.55, 0.8, 1].map(flat);
-  assert.equal(refinePick(frames, yes, no, 12, 12.5), Math.round((12 + 4 / 30) * 100) / 100);
-  assert.equal(refinePick([flat(0)], yes, no, 3, 3.5), 3.5);
+  assert.equal(list.length, 7);
+  assert.equal(refinePick(frames, yes, no, list), 360 + 4);
+  assert.equal(refinePick([flat(0)], yes, no, [{ index: 105 }]), 105);
 });
+
+// A simulated video: frame k is the app from frame `first` on. A seek to t shows the frame that contains t.
+function refineOnSim(rate, first, noT, yesT) {
+  const shown = (t) => (Math.floor((t * rate.num) / rate.den + 1e-9) >= first ? flat(1) : flat(0));
+  const list = refineFrames(noT, yesT, rate);
+  const idx = refinePick(list.map((f) => shown(f.seekT)), shown(yesT), shown(noT), list);
+  return frameStart(idx, rate);
+}
+
+for (const [label, first] of [["29.97", 368], ["25", 307], ["23.976", 294], ["59.94", 736]]) {
+  test(`refine at ${label} fps lands on the first app frame, not one late`, () => {
+    const rate = rateInfo(Number(label));
+    const truth = (first * rate.den) / rate.num;
+    const t = refineOnSim(rate, first, Math.floor(truth * 2) / 2 - 0.5, Math.floor(truth * 2) / 2 + 0.5);
+    assert.equal(frameAt(t, rate), first);
+    assert.equal(frameAt(t, rate), frameAt(truth, rate));
+    assert.ok(Math.abs(t - truth) < 1e-9);
+    // One frame earlier is still "not yet".
+    assert.equal(frameAt(refineOnSim(rate, first + 1, t - 0.5, t + 0.5), rate), first + 1);
+  });
+}
 
 test("buildShots marks black sample frames and confirm mode brackets the pick", () => {
   const grids = [flat(0), flat(0), flat(0), flat(0.7), flat(0.7), flat(0.7)];

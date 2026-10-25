@@ -1,0 +1,19 @@
+{
+  "name": "first-ten-seconds",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Find the first frame where your app is on screen in a demo video, then export the cut to your editor.",
+  "type": "module",
+  "license": "MIT",
+  "scripts": {
+    "dev": "wrangler dev",
+    "dev:off": "wrangler dev --var AI_DISABLED:1",
+    "test": "node --test test/*.test.js && node scripts/check-copy.mjs",
+    "bench": "node bench/run.mjs",
+    "deploy": "wrangler deploy"
+  },
+  "devDependencies": {
+    "playwright-core": "^1.63.0",
+    "wrangler": "^4.150.0"
+  }
+}

@@ -10,7 +10,7 @@ Build mode: fast (non-interactive build session; the hands-on checkpoints below 
 
 ## Slices
 
-- [ ] **1. The detector finds the first app frame on fake data**
+- [x] **1. The detector finds the first app frame on fake data**
   Becomes usable: The shipped detection module (2 fps grids, shot split, per-shot look, 30 fps refine) runs under `node --test` with a fake `/api/look`, and returns the same kind of answer the python reference pipeline does.
   Why now: This is the unique kernel. Everything else is a frame around it, so it goes first and gets tests before any UI.
   PRD ref: `prd.md > Finding the first app frame`
@@ -20,7 +20,7 @@ Build mode: fast (non-interactive build session; the hands-on checkpoints below 
   Learner check: Read `test/detect.test.js` and confirm the cases match the videos you know (slide trap, crossfade, app at frame 0).
   Commit: `Add detection engine with unit tests`
 
-- [ ] **2. The server answers one look, within budget**
+- [x] **2. The server answers one look, within budget**
   Becomes usable: `POST /api/look` with a 1024x288 JPEG runs Llama 4 Scout, then Mistral only for candidates, and refuses past the daily neuron cap or the per-visitor limits.
   Why now: The model call and the budget are the second risk. They are tested with a fake AI binding because today's allocation is used up.
   PRD ref: `prd.md > Daily limits`
@@ -40,7 +40,7 @@ Build mode: fast (non-interactive build session; the hands-on checkpoints below 
   Learner check: Drop ciph.mp4 with its screenshot and see where the marker lands.
   Commit: `Add tool page with auto and confirm modes`
 
-- [ ] **4. You can export the cut to your editor**
+- [x] **4. You can export the cut to your editor**
   Becomes usable: Buttons for Resolve and Premiere (CMX3600 EDL), Premiere (FCP7 XML), Resolve and Final Cut (FCPXML 1.9), each with a marker at the found frame and a trim starting there.
   Why now: The export is the reason the answer is useful; it needs exact timecode at the video's real rate.
   PRD ref: `prd.md > Export`

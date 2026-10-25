@@ -47,8 +47,8 @@ function draw() {
 
 async function pick(index) {
   state.mode = "refining";
-  setStatus("Finding the exact frame between shot " + index + " and shot " + (index + 1) + " on your computer.");
   const b = bracketForPick(state.shots, index);
+  setStatus(b.answerAtZero ? "First shot picked: the app is on screen from 0:00.00." : "Finding the exact frame on your computer, between " + display(b.noT) + " and " + display(b.yesT) + ".");
   state.answer = b.answerAtZero ? 0 : await refine(state.video, b.noT, b.yesT);
   state.source = "you";
   state.mode = "result";

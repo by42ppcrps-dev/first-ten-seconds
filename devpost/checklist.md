@@ -60,7 +60,7 @@ Build mode: fast (non-interactive build session; the hands-on checkpoints below 
   Learner check: Read /how and confirm it says what the tool can and cannot do.
   Commit: `Add how, privacy and terms pages`
 
-- [ ] **6. The benchmark runs the shipped module on every video**
+- [x] **6. The benchmark runs the shipped module on every video**
   Becomes usable: `npm run bench` drives Chrome against a configurable base URL, scores dev, holdout and RCV, and writes `bench/results.md` and `bench/results.json`.
   Why now: The published table must come from the browser module, not from python. It runs after 6 PM MDT when the allocation resets.
   PRD ref: `prd.md > Benchmark and the kill gate`

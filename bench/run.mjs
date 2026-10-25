@@ -93,6 +93,7 @@ async function main() {
     process.stdout.write(`${v.id} ... `);
     try { rows.push(await runOne(browser, v)); } catch (e) { rows.push({ id: v.id, set: v.set, status: "bench_error", error: String(e.message).slice(0, 200), answer: null }); }
     const last = rows[rows.length - 1];
+    if (!DRY && last.error === "model_off") { console.error("\nThe server has the model switched off (model_off). Nothing scored or written. Start it with `npm run dev`, or use --dry."); await browser.close(); process.exit(3); }
     console.log(last.status, last.answer, last.error || "", last.picked ? `picked=${last.picked.answer}` : "", `looks=${last.looks ?? ""} calls=${last.calls ?? ""} neurons~${last.neurons ?? ""} cached=${last.cached ?? ""} skipped=${last.skipped ?? ""} batch~${Math.round(batchNeurons)}${stopped ? " HARD STOP" : ""}`);
   }
   await browser.close();

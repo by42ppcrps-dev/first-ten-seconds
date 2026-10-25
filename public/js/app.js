@@ -125,7 +125,7 @@ async function run() {
     setStatus("No shot in the first 3:00 showed the app full screen. If it is there, click its first shot.", "err");
   } else {
     state.mode = "manual";
-    setStatus(stopMessage(result.error, result.resetsAt), result.error === "daily_cap" || result.error === "ai_quota" ? "busy" : "err");
+    setStatus(stopMessage(result.error, result.resetsAt), ["daily_cap", "ai_quota", "model_off"].includes(result.error) ? "busy" : "err");
   }
   draw();
   publish({ status: result.status, error: result.error || null, ms });

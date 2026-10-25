@@ -27,10 +27,12 @@ The browser benchmark will write `bench/results.md` (misses included) on its fir
 npm install            # or symlink node_modules from a project that has wrangler
 npm test               # unit tests, no network, plus the copy check
 npm run dev:off        # site with the model switched off (confirm mode only, no AI calls)
-npm run dev            # real Workers AI binding; needs a Cloudflare login and spends the daily allowance
+npm run dev            # real Workers AI binding (AI_DISABLED=0); needs a Cloudflare login and spends the daily allowance
 npm run bench          # with a dev server running: Chrome runs the page on every video in GT_DIR
 ```
-The bench takes `--base <url>`, `--set dev|holdout|rcv|all`, `--only <id>` and `--dry`.
+The bench takes `--base <url>`, `--set dev|holdout|rcv|all`, `--only <id>` and `--dry`. A scored run stops without writing anything if the server answers `model_off`.
+
+Deploying: `wrangler.jsonc` ships with `AI_DISABLED=1`, so a plain `npm run deploy` puts the site in pick-it-yourself mode with no model calls. Switching automatic finding on is step 2 of `bench/BUDGET-PLAN.md`.
 
 Limits: `FTS_DAILY_CAP` neurons a day for the site (default and maximum 6,000; 0 turns automatic finding off), 40 looks per visitor per day, 25 per video. Set `IP_SALT` as a secret before deploying; without it (and without `DEV=1`, which the npm dev scripts set) `/api/look` refuses to run. Answers are cached by a SHA-256 of the composite in the Budget Durable Object, so replaying a video costs no neurons.
 

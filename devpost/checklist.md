@@ -67,7 +67,7 @@ Build mode: fast (non-interactive build session; the hands-on checkpoints below 
   Spec ref: `spec.md > Benchmark runner`
   Build: `bench/run.mjs`.
   Verify (mechanical): `node bench/run.mjs --dry` with the model off runs end to end and writes results files marked as a dry run.
-  Learner check: After 6 PM, run `npm run bench` with `wrangler dev --remote` style AI access and read the table.
+  Learner check: After 6 PM, start `npm run dev` (real AI binding), run `npm run bench` and read the table.
   Commit: `Add browser benchmark runner`
 
 ## Hands-on Checkpoints

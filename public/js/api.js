@@ -40,7 +40,7 @@ export const MESSAGES = {
   visitor_cap: "You have used your 40 looks for today. They reset at 00:00 UTC.",
   hit_cap: "You have used today's 400 saved answers. They reset at 00:00 UTC.",
   video_cap: "This video reached its 25-look limit before the app showed up.",
-  model_off: "The model is switched off on this server.",
+  model_off: "Automatic finding is off for now and comes back after 6 PM Mountain.",
   model_failed: "The model did not answer, even after a retry.",
   network: "The server could not be reached.",
 };

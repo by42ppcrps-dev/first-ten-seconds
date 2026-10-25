@@ -7,7 +7,7 @@ No model calls were made. Truth files were not read.
 ## Result
 
 No logged YES shot is skipped or reused under the current rules. On all 11 videos the replay stops at the same
-shot as the Python run, with the same last NO before it, so the refine bracket and the answer are unchanged.
+shot as the Python run, with the same last NO before it. The refine bracket and answer are unchanged on 10 videos; on rcv-yt the YES sample moves from 59.5 to 60.0 s (see Limit below).
 
 - **The P3 rule (reuse on any shot) would have broken motiontracker-v1.** Its YES at 18.5 s is a forced 6 s split
   inside one long shot, and that grid is 0.0191 from the NO grids at 0.5, 6.5 and 12.5 s, under the 0.02 reuse

@@ -16,6 +16,6 @@
     "bindings": [{ "name": "BUDGET", "class_name": "Budget" }]
   },
   "migrations": [{ "tag": "v1", "new_sqlite_classes": ["Budget"] }],
-  "vars": { "AI_DISABLED": "0", "FTS_DAILY_CAP": "6000" },
+  "vars": { "AI_DISABLED": "1", "FTS_DAILY_CAP": "6000" },
   "observability": { "enabled": false }
 }

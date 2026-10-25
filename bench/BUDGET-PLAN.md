@@ -52,9 +52,9 @@ The Worker caches each answer under a SHA-256 of the composite JPEG. A second ru
 
 The bench UTC day runs from 6 PM MDT Oct 25 to 6 PM MDT Oct 26 (00:00 UTC Oct 26 to 00:00 UTC Oct 27).
 
-1. Until the 6 PM batch finishes, production runs with `AI_DISABLED=1`. Visitors get confirm mode; cached answers still work. No production neurons are spent.
-2. When the batch ends, read its total from `bench/results.md` ("batch total ~N"). Deploy with `FTS_DAILY_CAP = max(0, 6000 - batch spend)` and `AI_DISABLED=0` for the rest of that UTC day. Example: a 3,800 batch gives a cap of 2,200. If the batch spent 6,000 or more, the cap is 0 and the page shows the busy state.
-3. After the next 00:00 UTC, deploy with `FTS_DAILY_CAP=6000` (or unset it).
+1. Until the 6 PM batch finishes, production runs with `AI_DISABLED=1`, which is the committed default in `wrangler.jsonc`, so a plain `npm run deploy` always ships with the model off. Visitors get confirm mode; cached answers still work. No production neurons are spent.
+2. When the batch ends, read the real spend for the day from the Workers AI usage page in the Cloudflare dashboard (the bench total in `bench/results.md` is only an estimate; use the higher of the two). Deploy with `FTS_DAILY_CAP = max(0, 6000 - batch spend)` and `AI_DISABLED=0` for the rest of that UTC day, with an explicit command: `npx wrangler deploy --var AI_DISABLED:0 --var FTS_DAILY_CAP:<n>`. Example: a 3,800 batch gives a cap of 2,200. If the batch spent 6,000 or more, the cap is 0 and the page shows the busy state.
+3. After the next 00:00 UTC: `npx wrangler deploy --var AI_DISABLED:0 --var FTS_DAILY_CAP:6000`. Any later plain `npm run deploy` (for example a copy fix) switches the model off again, so repeat the explicit command after it.
 
 Bench plus production then stay at or under 6,000 on the bench day, so Can I Park Here always keeps at least 4,000. On every other day the site alone stays at or under 6,000.
 

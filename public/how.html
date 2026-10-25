@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="/css/fts.css">
+<title>How First Ten Seconds measures</title></head>
+<body><header class="top"><div class="wrap"><a class="mark" href="/"><span>00:00:10:00</span>First Ten Seconds</a><nav><a href="/">Tool</a><a href="/how">How it works</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a></nav></div></header>
+<main class="wrap prose">
+<h1>How it finds the first app frame</h1>
+<ol>
+<li>Your browser plays the video locally and takes a 32 by 18 pixel color snapshot twice a second, for the first 3 minutes.</li>
+<li>It splits the video into shots: a new shot starts when a snapshot differs from the previous one by more than 6 percent on average, and every 6 seconds inside a long shot, to catch slow fades and titles over a dimmed app. Black frames are skipped.</li>
+<li>For each shot, in order, it builds one 1024 by 288 picture: your screenshot on the left, a frame 0.5 seconds into the shot on the right. Only that picture is sent.</li>
+<li>The server asks Llama 4 Scout to describe the right half: how much of it is a software screen, and whether a large headline sits on top. If most or all of it is software and there is no headline, Mistral Small 3.1 is asked the same question to confirm. The model describes; the rule decides.</li>
+<li>At the first confirmed shot, your browser steps through every frame at 30 frames per second between the last "not yet" snapshot and the first "app" snapshot, and picks the first frame that looks more like the app than what came before. No model calls happen in this step.</li>
+</ol>
+<h2>Accuracy</h2>
+<p>Hit means within 1.0 second of a frame marked by hand. The table below comes from the browser benchmark (<code>bench/run.mjs</code>), which runs this exact page in Chrome on every video. Until that run is published, the table shows a reference run of the same method in Python, labelled as such.</p>
+<div id="bench-table"><table><thead><tr><th>Video</th><th>Set</th><th>Found</th><th>Marked by hand</th><th>Result</th></tr></thead><tbody>
+<tr><td>ciph</td><td>dev</td><td>12.27</td><td>12.27</td><td class="hit">hit</td></tr>
+<tr><td>faultrehearsal-v4</td><td>dev</td><td>9.27</td><td>9.33</td><td class="hit">hit</td></tr>
+<tr><td>graphhacks-yt</td><td>dev</td><td>15.97</td><td>16.20</td><td class="hit">hit</td></tr>
+<tr><td>motiontracker-v1</td><td>dev</td><td>13.63</td><td>13.62</td><td class="hit">hit</td></tr>
+<tr><td>boardclerk-v06</td><td>dev</td><td>0.00</td><td>0.00</td><td class="hit">hit</td></tr>
+<tr><td>motiontracker-v5</td><td>dev</td><td>5.27</td><td>0.00</td><td class="miss">miss: a big caption over the app reads as a headline</td></tr>
+<tr><td>h-boardclerk-v04</td><td>holdout</td><td>0.00</td><td>0.00</td><td class="hit">hit</td></tr>
+<tr><td>h-motiontracker-v3</td><td>holdout</td><td>0.00</td><td>0.00</td><td class="hit">hit</td></tr>
+<tr><td>h-taint-v1</td><td>holdout</td><td>18.27</td><td>18.33</td><td class="hit">hit</td></tr>
+<tr><td>h-faultrehearsal-v1</td><td>holdout</td><td>9.27</td><td>9.27</td><td class="hit">hit</td></tr>
+<tr><td>rcv-yt</td><td>no app</td><td>58.57</td><td>none</td><td class="miss">false positive: this video never shows an app</td></tr>
+</tbody></table><p class="label">Reference run: Python pipeline, Oct 2026. Not yet the browser run.</p></div>
+<h2>Limits</h2>
+<ul>
+<li>Only the first 3 minutes are scanned.</li>
+<li>A large caption over the app counts as a title, so the answer can land late (motiontracker-v5).</li>
+<li>A video with no app at all can still return a time (rcv-yt). Check the frame before you cut.</li>
+<li>Exports assume the file starts at timecode 00:00:00:00, which is true for screen recordings and most exports.</li>
+<li>Import into Resolve, Premiere and Final Cut has not been tested yet.</li>
+</ul>
+<h2>Cost</h2>
+<p>About 25 neurons per Llama look and 45 per Mistral look on the Cloudflare Workers AI free allowance. The site caps itself at 6,000 neurons a day, 40 looks per visitor per day and 25 per video. When a cap is hit, the page says so and you pick the shot yourself; the exact frame is still found on your computer.</p>
+<script type="module">
+fetch("/data/bench.json").then(r => r.ok ? r.json() : null).then(d => {
+  if (!d || !d.rows) return;
+  const rows = d.rows.map(x => `<tr><td>${x.id}</td><td>${x.set}</td><td>${x.answer === null ? "none" : x.answer.toFixed(2)}</td><td>${x.truth === null ? "none" : x.truth.toFixed(2)}</td><td class="${x.hit ? "hit" : "miss"}">${x.hit ? "hit" : "miss"}${x.note ? ": " + x.note : ""}</td></tr>`).join("");
+  document.getElementById("bench-table").innerHTML = `<table><thead><tr><th>Video</th><th>Set</th><th>Found</th><th>Marked by hand</th><th>Result</th></tr></thead><tbody>${rows}</tbody></table><p class="label">Browser run ${d.date}, commit ${d.commit}.</p>`;
+});
+</script>
+</main>
+<footer><div class="wrap">First Ten Seconds. MIT licensed. Your video stays on your computer. <a href="https://github.com/by42ppcrps-dev/first-ten-seconds">Source</a></div></footer>
+</body></html>

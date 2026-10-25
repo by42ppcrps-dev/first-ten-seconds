@@ -75,3 +75,5 @@ footer { border-top: 1px solid var(--rule); margin-top: 48px; padding: 16px 0 32
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 .tl-track.no-shots { height: 76px; }
+#bench-table { overflow-x: auto; -webkit-overflow-scrolling: touch; max-width: 100%; }
+#bench-table table { min-width: 520px; }

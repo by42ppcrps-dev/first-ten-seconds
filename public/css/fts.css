@@ -80,12 +80,13 @@ footer { border-top: 1px solid var(--rule); margin-top: 48px; padding: 16px 0 32
 .tl-track.no-shots { height: 76px; }
 #bench-table { max-width: 100%; }
 #bench-table td { vertical-align: top; }
-#bench-table td:first-child { overflow-wrap: anywhere; }
+/* min-width keeps names on one line on desktop; the Result column takes the wrapping instead. */
+#bench-table td:first-child { overflow-wrap: anywhere; min-width: calc(19ch + 16px); }
 #bench-table td:nth-child(2), #bench-table td:nth-child(3), #bench-table td:nth-child(4) { white-space: nowrap; }
 @media (max-width: 600px) {
   #bench-table th:nth-child(2), #bench-table td:nth-child(2) { display: none; }
   #bench-table th, #bench-table td { padding: 8px 4px; font-size: 12px; }
   /* Names break only at their hyphens (<wbr>), never mid-word. */
-  #bench-table td:first-child { overflow-wrap: break-word; }
+  #bench-table td:first-child { overflow-wrap: break-word; min-width: 0; }
 }
 .status.busy { color: var(--text); border-left: 3px solid var(--dim); }

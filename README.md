@@ -32,7 +32,7 @@ npm run bench          # with a dev server running: Chrome runs the page on ever
 ```
 The bench takes `--base <url>`, `--set dev|holdout|rcv|all`, `--only <id>` and `--dry`.
 
-Limits: 6,000 neurons a day for the site, 40 looks per visitor per day, 25 per video. Set `IP_SALT` as a secret before deploying; without it (and without `DEV=1`, which the npm dev scripts set) `/api/look` refuses to run. Answers are cached by a SHA-256 of the composite in the Budget Durable Object, so replaying a video costs no neurons.
+Limits: `FTS_DAILY_CAP` neurons a day for the site (default and maximum 6,000; 0 turns automatic finding off), 40 looks per visitor per day, 25 per video. Set `IP_SALT` as a secret before deploying; without it (and without `DEV=1`, which the npm dev scripts set) `/api/look` refuses to run. Answers are cached by a SHA-256 of the composite in the Budget Durable Object, so replaying a video costs no neurons.
 
 ## License
 MIT. Fonts: Archivo and IBM Plex Mono, SIL Open Font License, self-hosted.

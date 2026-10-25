@@ -1,6 +1,8 @@
 # Validation batch budget (after 6 PM Mountain)
 
-The Workers AI free allowance is 10,000 neurons a day, shared with Can I Park Here. It resets at 00:00 UTC (6 PM MDT, 5 PM MST after Nov 1). The site caps itself at 6,000 a day. This batch stops at 4,000.
+The Workers AI free allowance is 10,000 neurons a day, shared with Can I Park Here. It resets at 00:00 UTC (6 PM MDT, 5 PM MST after Nov 1). The site caps itself at `FTS_DAILY_CAP` neurons a day (default 6,000, never more than 6,000; 0 turns automatic finding off and the page shows the busy state). This batch stops at 4,000.
+
+The batch runs on `npm run dev`, which uses a local Durable Object, so its spend never reaches the production counter. The production cap has to be lowered by hand for that UTC day (see "Production on the bench day" below).
 
 ## Batch
 
@@ -46,6 +48,16 @@ The browser splits shots from a canvas downscale, not ffmpeg, so its shot count 
 
 The Worker caches each answer under a SHA-256 of the composite JPEG. A second run of the same video in the same Chrome version sends the same pictures and costs 0 neurons.
 
+## Production on the bench day
+
+The bench UTC day runs from 6 PM MDT Oct 25 to 6 PM MDT Oct 26 (00:00 UTC Oct 26 to 00:00 UTC Oct 27).
+
+1. Until the 6 PM batch finishes, production runs with `AI_DISABLED=1`. Visitors get confirm mode; cached answers still work. No production neurons are spent.
+2. When the batch ends, read its total from `bench/results.md` ("batch total ~N"). Deploy with `FTS_DAILY_CAP = max(0, 6000 - batch spend)` and `AI_DISABLED=0` for the rest of that UTC day. Example: a 3,800 batch gives a cap of 2,200. If the batch spent 6,000 or more, the cap is 0 and the page shows the busy state.
+3. After the next 00:00 UTC, deploy with `FTS_DAILY_CAP=6000` (or unset it).
+
+Bench plus production then stay at or under 6,000 on the bench day, so Can I Park Here always keeps at least 4,000. On every other day the site alone stays at or under 6,000.
+
 ## After the batch
 
-This site's day total stays at or under 4,000, so Can I Park Here keeps at least 6,000 that day. The `/how` table switches to the browser run once `public/data/bench.json` is written.
+Check the highest per-call neuron cost in the bench log. `RESERVE` in `src/budget-core.js` (160 = 2 x (30 + 50)) assumes at most 30 per Llama call and 50 per Mistral call. If any call cost more, raise those two numbers to the highest seen, and correct the "about 25 / 45" figures on `/how`. Until then the last look of a day can pass the cap by a few tens of neurons. The `/how` table switches to the browser run once `public/data/bench.json` is written.

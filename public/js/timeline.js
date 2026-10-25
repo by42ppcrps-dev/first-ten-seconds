@@ -16,7 +16,9 @@ export function renderTimeline(root, { duration, thumbs = [], shots = [], answer
     const tick = el("div", major ? "tick major" : "tick");
     tick.style.left = t * PPS + "px";
     ruler.appendChild(tick);
-    if (major && t % 2 === 0) {
+    // Skip labels the marker label would cover (it sits about 64px wide to the right of the marker).
+    const nearMarker = answer !== null && t * PPS > answer * PPS - 40 && t * PPS < answer * PPS + 80;
+    if (major && t % 2 === 0 && !nearMarker) {
       const lab = el("span", "tick-label", display(t).replace(/\.\d+$/, ""));
       lab.style.left = t * PPS + "px";
       ruler.appendChild(lab);

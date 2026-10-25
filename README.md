@@ -16,11 +16,11 @@ The video stays on your computer. Only small 1024x288 pictures (your screenshot 
 ## How it works
 1. The browser takes a 32x18 color snapshot twice a second over the first 3 minutes and splits the video into shots (mean change over 0.06, or every 6 s inside a long shot).
 2. For each shot in order, it sends one composite. The Worker asks Llama 4 Scout to describe the right half (how much is a software screen, is there a large headline). If most or all of it is software with no headline, Mistral Small 3.1 confirms. Errors stop the search; they never count as "not the app".
-3. At the first app shot, the browser steps at 30 fps between the last "not yet" time and the first "app" time and picks the first frame closer to the app.
-4. When the daily budget, a visitor limit or the Cloudflare free allowance runs out, the page switches to "suggests, you confirm": click the first shot that shows your app, and step 3 still runs locally with no model calls.
+3. At the first app shot, the browser steps through every real frame (at the video's own rate) between the last "not yet" time and the first "app" time and picks the first frame closer to the app.
+4. When the daily budget, a visitor limit or the Cloudflare free allowance runs out, the page switches to confirm mode: click the first shot that shows your app, and step 3 still runs locally with no model calls.
 
 ## Accuracy
-See [bench/results.md](bench/results.md), written by the browser benchmark on every run, misses included. Until the first browser run, `/how` shows a reference run of the same method in Python, labelled as such: 5 of 6 dev videos and 4 of 4 holdout videos within 1.0 s, one miss (motiontracker-v5, a big caption over the app) and one false positive on a video with no app (rcv-yt).
+The browser benchmark will write `bench/results.md` (misses included) on its first run; it has not run yet. Until then, `/how` shows a reference run of the same method in Python, labeled as such: 5 of 6 dev videos and 4 of 4 holdout videos within 1.0 s, one miss (motiontracker-v5, a big caption over the app) and one false positive on a video with no app (rcv-yt).
 
 ## Run locally
 ```
@@ -32,7 +32,7 @@ npm run bench          # with a dev server running: Chrome runs the page on ever
 ```
 The bench takes `--base <url>`, `--set dev|holdout|rcv|all`, `--only <id>` and `--dry`.
 
-Limits: 6,000 neurons a day for the site, 40 looks per visitor per day, 25 per video. Set `IP_SALT` as a secret before deploying.
+Limits: 6,000 neurons a day for the site, 40 looks per visitor per day, 25 per video. Set `IP_SALT` as a secret before deploying; without it (and without `DEV=1`, which the npm dev scripts set) `/api/look` refuses to run. Answers are cached by a SHA-256 of the composite in the Budget Durable Object, so replaying a video costs no neurons.
 
 ## License
 MIT. Fonts: Archivo and IBM Plex Mono, SIL Open Font License, self-hosted.

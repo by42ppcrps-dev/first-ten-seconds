@@ -1,18 +1,18 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="/css/fts.css"><link rel="icon" href="data:,">
 <title>How First Ten Seconds measures</title></head>
-<body><header class="top"><div class="wrap"><a class="mark" href="/"><span>00:00:10:00</span>First Ten Seconds</a><nav><a href="/">Tool</a><a href="/how">How it works</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a></nav></div></header>
+<body><header class="top"><div class="wrap"><a class="mark" href="/"><span>00:00:10:00</span>First Ten Seconds</a><nav><a href="/">Tool</a><a href="/how" aria-current="page">How it works</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a></nav></div></header>
 <main class="wrap prose">
 <h1>How it finds the first app frame</h1>
 <ol>
 <li>Your browser plays the video locally and takes a 32 by 18 pixel color snapshot twice a second, for the first 3 minutes.</li>
-<li>It splits the video into shots: a new shot starts when a snapshot differs from the previous one by more than 6 percent on average, and every 6 seconds inside a long shot, to catch slow fades and titles over a dimmed app. Black frames are skipped.</li>
+<li>It splits the video into shots: a new shot starts when a snapshot differs from the previous one by more than 6 percent on average, and every 6 seconds inside a long shot, to catch slow fades and titles over a dimmed app. Black or nearly blank frames are skipped, and a shot that looks almost the same as one already checked reuses that answer.</li>
 <li>For each shot, in order, it builds one 1024 by 288 picture: your screenshot on the left, a frame 0.5 seconds into the shot on the right. Only that picture is sent.</li>
 <li>The server asks Llama 4 Scout to describe the right half: how much of it is a software screen, and whether a large headline sits on top. If most or all of it is software and there is no headline, Mistral Small 3.1 is asked the same question to confirm. The model describes; the rule decides.</li>
-<li>At the first confirmed shot, your browser steps through every frame at 30 frames per second between the last "not yet" snapshot and the first "app" snapshot, and picks the first frame that looks more like the app than what came before. No model calls happen in this step.</li>
+<li>At the first confirmed shot, your browser steps through every frame of the video at its own frame rate (measured when the video loads, then snapped to the nearest standard rate such as 23.976, 25, 29.97 or 60) between the last "not yet" snapshot and the first "app" snapshot, and picks the first frame that looks more like the app than what came before. No model calls happen in this step.</li>
 </ol>
 <h2>Accuracy</h2>
-<p>Hit means within 1.0 second of a frame marked by hand. The table below comes from the browser benchmark (<code>bench/run.mjs</code>), which runs this exact page in Chrome on every video. Until that run is published, the table shows a reference run of the same method in Python, labelled as such.</p>
+<p id="bench-note">Hit means within 1.0 second of a frame marked by hand. The table below is a reference run of the same method in Python, not this page. A browser benchmark (<code>bench/run.mjs</code>) that runs this page in Chrome on every video is written and will replace this table once it has run.</p>
 <div id="bench-table"><table><thead><tr><th>Video</th><th>Set</th><th>Found</th><th>Marked by hand</th><th>Result</th></tr></thead><tbody>
 <tr><td>ciph</td><td>dev</td><td>12.27</td><td>12.27</td><td class="hit">hit</td></tr>
 <tr><td>faultrehearsal-v4</td><td>dev</td><td>9.27</td><td>9.33</td><td class="hit">hit</td></tr>
@@ -35,12 +35,28 @@
 <li>Import into Resolve, Premiere and Final Cut has not been tested yet.</li>
 </ul>
 <h2>Cost</h2>
-<p>About 25 neurons per Llama look and 45 per Mistral look on the Cloudflare Workers AI free allowance. The site caps itself at 6,000 neurons a day, 40 looks per visitor per day and 25 per video. When a cap is hit, the page says so and you pick the shot yourself; the exact frame is still found on your computer.</p>
+<p>About 25 neurons per Llama look and 45 per Mistral look on the Cloudflare Workers AI free allowance, which this site shares with another project. Every model attempt is counted, including ones that fail. A picture the server has already answered is answered again from a cache at no cost. The site caps itself at 6,000 neurons a day, 40 looks per visitor per day and 25 per video. When a cap is hit, the page says so and you pick the shot yourself; the exact frame is still found on your computer.</p>
 <script type="module">
+// Replaces the Python reference table (and its note) with the browser run once bench.json is published.
 fetch("/data/bench.json").then(r => r.ok ? r.json() : null).then(d => {
-  if (!d || !d.rows) return;
-  const rows = d.rows.map(x => `<tr><td>${x.id}</td><td>${x.set}</td><td>${x.answer === null ? "none" : x.answer.toFixed(2)}</td><td>${x.truth === null ? "none" : x.truth.toFixed(2)}</td><td class="${x.hit ? "hit" : "miss"}">${x.hit ? "hit" : "miss"}${x.note ? ": " + x.note : ""}</td></tr>`).join("");
-  document.getElementById("bench-table").innerHTML = `<table><thead><tr><th>Video</th><th>Set</th><th>Found</th><th>Marked by hand</th><th>Result</th></tr></thead><tbody>${rows}</tbody></table><p class="label">Browser run ${d.date}, commit ${d.commit}.</p>`;
+  if (!d || !Array.isArray(d.rows)) return;
+  const cell = (tag, text, cls) => { const c = document.createElement(tag); c.textContent = text; if (cls) c.className = cls; return c; };
+  const table = document.createElement("table"), head = document.createElement("tr"), body = document.createElement("tbody");
+  ["Video", "Set", "Found", "Marked by hand", "Result"].forEach(h => head.appendChild(cell("th", h)));
+  table.appendChild(document.createElement("thead")).appendChild(head);
+  for (const x of d.rows) {
+    const tr = document.createElement("tr");
+    tr.appendChild(cell("td", String(x.id)));
+    tr.appendChild(cell("td", String(x.set)));
+    tr.appendChild(cell("td", x.answer === null ? "none" : Number(x.answer).toFixed(2)));
+    tr.appendChild(cell("td", x.truth === null ? "none" : Number(x.truth).toFixed(2)));
+    tr.appendChild(cell("td", (x.hit ? "hit" : "miss") + (x.note ? ": " + x.note : ""), x.hit ? "hit" : "miss"));
+    body.appendChild(tr);
+  }
+  table.appendChild(body);
+  const box = document.getElementById("bench-table");
+  box.replaceChildren(table, cell("p", "Browser run " + d.date + ", commit " + d.commit + ".", "label"));
+  document.getElementById("bench-note").textContent = "Hit means within 1.0 second of a frame marked by hand. The table below comes from the browser benchmark (bench/run.mjs), which ran this page in Chrome on every video.";
 });
 </script>
 </main>

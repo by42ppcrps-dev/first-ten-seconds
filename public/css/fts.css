@@ -27,6 +27,8 @@ p.lede { color: var(--dim); max-width: 720px; margin: 0 0 24px; }
 .drop { border: 1px dashed var(--rule); padding: 24px 16px; display: grid; gap: 8px; }
 .drop.over { border-color: var(--on-screen); }
 .drop input[type=file] { font: 12px var(--mono); color: var(--dim); max-width: 100%; }
+.drop input[type=file]::file-selector-button { font: 12px var(--mono); background: var(--panel); color: var(--text); border: 1px solid var(--rule); border-radius: 0; padding: 8px 12px; margin-right: 12px; cursor: pointer; }
+.drop input[type=file]::file-selector-button:hover { border-color: var(--text); }
 .file-name { font: 13px var(--mono); color: var(--text); overflow-wrap: anywhere; }
 .readout { padding: 16px 24px; border-bottom: 1px solid var(--rule); display: grid; gap: 4px; }
 .readout .big { font: 500 88px/1 var(--mono); font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
@@ -75,5 +77,10 @@ footer { border-top: 1px solid var(--rule); margin-top: 48px; padding: 16px 0 32
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 .tl-track.no-shots { height: 76px; }
-#bench-table { overflow-x: auto; -webkit-overflow-scrolling: touch; max-width: 100%; }
-#bench-table table { min-width: 520px; }
+#bench-table { max-width: 100%; }
+#bench-table td { overflow-wrap: anywhere; vertical-align: top; }
+@media (max-width: 600px) {
+  #bench-table th:nth-child(2), #bench-table td:nth-child(2) { display: none; }
+  #bench-table th, #bench-table td { padding: 8px 4px; font-size: 12px; }
+}
+.status.busy { color: var(--text); border-left: 3px solid var(--dim); }

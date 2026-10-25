@@ -30,7 +30,7 @@ Build mode: fast (non-interactive build session; the hands-on checkpoints below 
   Learner check: Start `npm run dev` and confirm the page loads at localhost:8787.
   Commit: `Add look endpoint and budget Durable Object`
 
-- [ ] **3. You can drop a video and get an answer, or pick the shot yourself**
+- [x] **3. You can drop a video and get an answer, or pick the shot yourself**
   Becomes usable: The tool page loads a video and a screenshot, scans, shows shots on a tick-marked timeline, and either finds the app automatically or, when the model is unavailable, lets you click the first app shot and still refines locally.
   Why now: The core journey end to end. The fallback mode must work with zero model calls, which is the only mode testable today.
   PRD ref: `prd.md > The Core Journey`, `prd.md > States and Boundaries`
@@ -50,7 +50,7 @@ Build mode: fast (non-interactive build session; the hands-on checkpoints below 
   Learner check: Import each file in Resolve and Premiere (untested by the build).
   Commit: `Add EDL, FCP7 XML and FCPXML exports`
 
-- [ ] **5. The method, privacy and terms are published**
+- [x] **5. The method, privacy and terms are published**
   Becomes usable: `/how`, `/privacy`, `/terms` with self-hosted fonts and a copy check.
   Why now: The accuracy table and every miss must be visible before anyone trusts the number.
   PRD ref: `prd.md > How it measures (/how)`, `prd.md > Privacy and terms`

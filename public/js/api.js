@@ -25,17 +25,20 @@ export function nextUtcMidnight(now = new Date()) {
 }
 
 // Shown when the site's daily budget or the account allowance is used up. timeZone is for tests.
+// The Mountain time is added only when the visitor's clock shows a different hour from Mountain time.
 export function busyMessage(resetsAt, { now = new Date(), timeZone } = {}) {
   const at = resetsAt ? new Date(resetsAt) : nextUtcMidnight(now);
   const local = at.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", timeZone });
-  const mountain = at.toLocaleTimeString("en-US", { hour: "numeric", timeZone: "America/Denver" });
-  return `Busy right now. Automatic finding is paused until ${local} (resets daily at ${mountain} Mountain). You can still pick the shot yourself below.`;
+  const mountain = at.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", timeZone: "America/Denver" });
+  const when = local === mountain ? "resets daily" : `resets daily at ${mountain.replace(":00", "")} Mountain`;
+  return `Busy right now. Automatic finding is paused until ${local} (${when}). You can still pick the shot yourself below.`;
 }
 
 export const BUSY = new Set(["daily_cap", "ai_quota"]);
 
 export const MESSAGES = {
   visitor_cap: "You have used your 40 looks for today. They reset at 00:00 UTC.",
+  hit_cap: "You have used today's 400 saved answers. They reset at 00:00 UTC.",
   video_cap: "This video reached its 25-look limit before the app showed up.",
   model_off: "The model is switched off on this server.",
   model_failed: "The model did not answer, even after a retry.",

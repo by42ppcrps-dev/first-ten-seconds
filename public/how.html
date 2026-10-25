@@ -12,19 +12,19 @@
 <li>At the first confirmed shot, your browser steps through every frame of the video at its own frame rate (measured when the video loads, then snapped to the nearest standard rate such as 23.976, 25, 29.97 or 60) between the last "not yet" snapshot and the first "app" snapshot, and picks the first frame that looks more like the app than what came before. No model calls happen in this step.</li>
 </ol>
 <h2>Accuracy</h2>
-<p id="bench-note">Hit means within 1.0 second of a frame marked by hand. The table below is a reference run of the same method in Python, not this page. A browser benchmark (<code>bench/run.mjs</code>) that runs this page in Chrome on every video is written and will replace this table once it has run.</p>
+<p id="bench-note">Hit means within 1.0 second of a frame marked by hand. The table below is from an earlier version of this method in Python (before the blank-frame skip and answer reuse were added), not this page. A browser benchmark (<code>bench/run.mjs</code>) that runs this page in Chrome on every video is written and will replace this table once it has run.</p>
 <div id="bench-table"><table><thead><tr><th>Video</th><th>Set</th><th>Found</th><th>Marked by hand</th><th>Result</th></tr></thead><tbody>
 <tr><td>ciph</td><td>dev</td><td>12.27</td><td>12.27</td><td class="hit">hit</td></tr>
-<tr><td>faultrehearsal-v4</td><td>dev</td><td>9.27</td><td>9.33</td><td class="hit">hit</td></tr>
-<tr><td>graphhacks-yt</td><td>dev</td><td>15.97</td><td>16.20</td><td class="hit">hit</td></tr>
-<tr><td>motiontracker-v1</td><td>dev</td><td>13.63</td><td>13.62</td><td class="hit">hit</td></tr>
-<tr><td>boardclerk-v06</td><td>dev</td><td>0.00</td><td>0.00</td><td class="hit">hit</td></tr>
-<tr><td>motiontracker-v5</td><td>dev</td><td>5.27</td><td>0.00</td><td class="miss">miss: a big caption over the app reads as a headline</td></tr>
-<tr><td>h-boardclerk-v04</td><td>holdout</td><td>0.00</td><td>0.00</td><td class="hit">hit</td></tr>
-<tr><td>h-motiontracker-v3</td><td>holdout</td><td>0.00</td><td>0.00</td><td class="hit">hit</td></tr>
-<tr><td>h-taint-v1</td><td>holdout</td><td>18.27</td><td>18.33</td><td class="hit">hit</td></tr>
-<tr><td>h-faultrehearsal-v1</td><td>holdout</td><td>9.27</td><td>9.27</td><td class="hit">hit</td></tr>
-<tr><td>rcv-yt</td><td>no app</td><td>58.57</td><td>none</td><td class="miss">false positive: this video never shows an app</td></tr>
+<tr><td>faultrehearsal-<wbr>v4</td><td>dev</td><td>9.27</td><td>9.33</td><td class="hit">hit</td></tr>
+<tr><td>graphhacks-<wbr>yt</td><td>dev</td><td>15.97</td><td>16.20</td><td class="hit">hit</td></tr>
+<tr><td>motiontracker-<wbr>v1</td><td>dev</td><td>13.63</td><td>13.62</td><td class="hit">hit</td></tr>
+<tr><td>boardclerk-<wbr>v06</td><td>dev</td><td>0.00</td><td>0.00</td><td class="hit">hit</td></tr>
+<tr><td>motiontracker-<wbr>v5</td><td>dev</td><td>5.27</td><td>0.00</td><td class="miss">miss: a big caption over the app reads as a headline</td></tr>
+<tr><td>h-<wbr>boardclerk-<wbr>v04</td><td>holdout</td><td>0.00</td><td>0.00</td><td class="hit">hit</td></tr>
+<tr><td>h-<wbr>motiontracker-<wbr>v3</td><td>holdout</td><td>0.00</td><td>0.00</td><td class="hit">hit</td></tr>
+<tr><td>h-<wbr>taint-<wbr>v1</td><td>holdout</td><td>18.27</td><td>18.33</td><td class="hit">hit</td></tr>
+<tr><td>h-<wbr>faultrehearsal-<wbr>v1</td><td>holdout</td><td>9.27</td><td>9.27</td><td class="hit">hit</td></tr>
+<tr><td>rcv-<wbr>yt</td><td>no app</td><td>58.57</td><td>none</td><td class="miss">false positive: this video never shows an app</td></tr>
 </tbody></table><p class="label">Reference run: Python pipeline, Oct 2026. Not yet the browser run.</p></div>
 <h2>Limits</h2>
 <ul>
@@ -46,7 +46,9 @@ fetch("/data/bench.json").then(r => r.ok ? r.json() : null).then(d => {
   table.appendChild(document.createElement("thead")).appendChild(head);
   for (const x of d.rows) {
     const tr = document.createElement("tr");
-    tr.appendChild(cell("td", String(x.id)));
+    const name = cell("td", "");
+    String(x.id).split("-").forEach((part, i) => { if (i) name.append("-", document.createElement("wbr")); name.append(part); });
+    tr.appendChild(name);
     tr.appendChild(cell("td", String(x.set)));
     tr.appendChild(cell("td", x.answer === null ? "none" : Number(x.answer).toFixed(2)));
     tr.appendChild(cell("td", x.truth === null ? "none" : Number(x.truth).toFixed(2)));

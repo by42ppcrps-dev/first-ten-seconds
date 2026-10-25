@@ -1,19 +1,20 @@
 import { meanAbsDiff, isNearBlack, isNearUniform } from "./grid.js";
-import { shotStarts, shotSampleTime, round2, SAMPLE_FPS } from "./shots.js";
+import { shotBounds, shotSampleTime, round2, SAMPLE_FPS } from "./shots.js";
 
 export const MAX_LOOKS_PER_VIDEO = 25;
 // A shot whose grid is this close to an already judged shot reuses that verdict (well under the 0.06 cut).
+// Only shots that began on a real cut reuse; a forced 6 s split exists to ask again inside a slow change.
 export const REUSE_DIFF = 0.02;
 
 // Build the shot list from 2 fps grids.
 export function buildShots(grids, fps = SAMPLE_FPS) {
-  const starts = shotStarts(grids, { fps });
+  const { starts, forced } = shotBounds(grids, { fps });
   return starts.map((s, k) => {
     const t = shotSampleTime(starts, k, grids.length, fps);
     const end = k + 1 < starts.length ? starts[k + 1] : grids.length;
     const gi = Math.min(grids.length - 1, Math.round(t * fps));
     const black = isNearBlack(grids[gi]);
-    return { index: k, start: round2(s / fps), end: round2(end / fps), t, black, uniform: !black && isNearUniform(grids[gi]), grid: grids[gi] };
+    return { index: k, start: round2(s / fps), end: round2(end / fps), t, forced: forced[k], black, uniform: !black && isNearUniform(grids[gi]), grid: grids[gi] };
   });
 }
 
@@ -40,14 +41,14 @@ export function refinePick(frames, yesGrid, noGrid, list) {
 }
 
 // Walk shots in order. look(shot) resolves to { app } or throws; an error is not a NO.
-// refine(noT, yesT) resolves to the answer time. Black or near-uniform shots, and shots nearly identical
-// to one already judged, skip the model. Cached answers ({ cached: true }) do not count as looks.
+// refine(noT, yesT) resolves to the answer time. Black or near-uniform shots, and shots that start on a
+// real cut and look nearly identical to one already judged, skip the model. Cached answers ({ cached: true }) do not count as looks.
 export async function detect({ shots, look, refine, onShot = () => {}, maxLooks = MAX_LOOKS_PER_VIDEO }) {
   let lastNo = null, looks = 0;
   const verdicts = [], judged = [];
   for (const shot of shots) {
     let app;
-    const same = shot.grid ? judged.find((j) => meanAbsDiff(j.grid, shot.grid) < REUSE_DIFF) : null;
+    const same = shot.grid && !shot.forced ? judged.find((j) => meanAbsDiff(j.grid, shot.grid) < REUSE_DIFF) : null;
     if (shot.black || shot.uniform) {
       app = false;
       verdicts.push({ shot: shot.index, t: shot.t, app, skipped: shot.black ? "black" : "uniform" });

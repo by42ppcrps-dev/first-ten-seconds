@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { handleLook, jpegSize } from "../src/look.js";
-import { reserve, settle, countHit, memoryStore, memoryCache, estimateNeurons, DAILY_NEURON_CAP, LOOKS_PER_VIDEO, RESERVE } from "../src/budget-core.js";
+import { reserve, settle, countHit, memoryStore, memoryCache, estimateNeurons, dailyCap, DAILY_NEURON_CAP, LOOKS_PER_VIDEO, RESERVE, CACHED_LOOKS_PER_VISITOR_DAY } from "../src/budget-core.js";
 
 // Minimal JPEG header with a SOF0 of the given size.
 function fakeJpeg(w, h) {
@@ -22,6 +22,7 @@ function fakeEnv(answers, opts = {}) {
     DEV: opts.prod ? "0" : "1",
     IP_SALT: opts.salt,
     AI_DISABLED: opts.off ? "1" : "0",
+    FTS_DAILY_CAP: opts.cap,
     AI: {
       async run(model, input) {
         calls.push(model);
@@ -36,7 +37,7 @@ function fakeEnv(answers, opts = {}) {
       get: (name) => name === "cache"
         ? { cacheGet: cache.get, cachePut: cache.put }
         : {
-            reserve: async (v, vid, amt) => reserve(store, v, vid, amt),
+            reserve: async (v, vid, amt, cap) => reserve(store, v, vid, amt, cap),
             settle: async (d) => settle(store, d),
             countHit: async (v) => countHit(store, v),
           },
@@ -150,6 +151,34 @@ test("cache hit: same picture costs zero neurons, zero calls, and works while th
   assert.ok(spent > 0);
   // A different picture is not a hit.
   assert.equal((await handleLook(req({ image: "data:image/jpeg;base64," + Buffer.concat([Buffer.from(fakeJpeg(1024, 288).slice(23), "base64"), Buffer.from([1, 2, 3])]).toString("base64"), video: "test-video-1" }), env)).status, 429);
+});
+
+test("FTS_DAILY_CAP: default 6,000, clamped to 6,000, 0 turns automatic finding off", async () => {
+  assert.equal(dailyCap({}), 6000);
+  assert.equal(dailyCap({ FTS_DAILY_CAP: "" }), 6000);
+  assert.equal(dailyCap({ FTS_DAILY_CAP: "2000" }), 2000);
+  assert.equal(dailyCap({ FTS_DAILY_CAP: "9000" }), 6000);
+  assert.equal(dailyCap({ FTS_DAILY_CAP: "-5" }), 0);
+  assert.equal(dailyCap({ FTS_DAILY_CAP: "two thousand" }), 0);
+  const off = fakeEnv({ llama: APP, mistral: APP }, { cap: "0" });
+  const r = await handleLook(req(good), off);
+  assert.equal(r.status, 429);
+  const b = await r.json();
+  assert.equal(b.error, "daily_cap");
+  assert.match(b.resets_at, /T00:00:00\.000Z$/);
+  assert.equal(off.calls.length, 0);
+  assert.equal(off.store.get("neurons"), 0);
+  // A lowered cap holds the same way the default one does.
+  const low = fakeEnv({ llama: APP, mistral: APP }, { cap: "2000" });
+  low.store.set("neurons", 2000 - RESERVE + 1);
+  assert.equal((await (await handleLook(req(good), low)).json()).error, "daily_cap");
+  assert.equal(low.calls.length, 0);
+});
+
+test("cache hits past the daily hit limit return hit_cap, not visitor_cap", () => {
+  const s = memoryStore();
+  for (let i = 0; i < CACHED_LOOKS_PER_VISITOR_DAY; i++) assert.ok(countHit(s, "a").ok);
+  assert.equal(countHit(s, "a").error, "hit_cap");
 });
 
 test("hardening: salt required in production, localhost ports only in dev, content-length checked", async () => {

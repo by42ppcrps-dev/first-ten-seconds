@@ -4,6 +4,8 @@ export const LOOKS_PER_VISITOR_DAY = 40;
 export const LOOKS_PER_VIDEO = 25;
 // Worst case for one look: Llama and Mistral, each tried twice, with headroom over the fallback estimates.
 // Reserved up front so the cap holds even when every attempt fails; settled to the real charge after.
+// 30 and 50 per call are guesses. If a call costs more, the last look of a day can pass the cap by a few
+// tens of neurons. Reset both from the highest per-call cost logged in the first real bench run.
 export const RESERVE = 2 * (30 + 50);
 export const CACHED_LOOKS_PER_VISITOR_DAY = 400; // cached answers cost no neurons; this only stops abuse
 
@@ -21,10 +23,21 @@ export function estimateNeurons(model, usage) {
   return Math.round(((pin * r.in + (Number.isFinite(pout) ? pout : 0) * r.out) / 1e6) * 10) / 10;
 }
 
+// Site cap for today from the FTS_DAILY_CAP variable. Unset means 6,000; anything higher is clamped to
+// 6,000; 0 turns automatic finding off (the page shows the busy state). A value that is not a number
+// also gives 0, so a typo fails closed.
+export function dailyCap(env) {
+  const raw = env && env.FTS_DAILY_CAP;
+  if (raw === undefined || raw === null || String(raw).trim() === "") return DAILY_NEURON_CAP;
+  const n = Number(raw);
+  if (!Number.isFinite(n)) return 0;
+  return Math.max(0, Math.min(DAILY_NEURON_CAP, Math.floor(n)));
+}
+
 // store: { get(key) -> number, set(key, number) }
-export function reserve(store, visitor, video, amount = RESERVE) {
+export function reserve(store, visitor, video, amount = RESERVE, cap = DAILY_NEURON_CAP) {
   const used = store.get("neurons");
-  if (used + amount > DAILY_NEURON_CAP) return { ok: false, error: "daily_cap" };
+  if (used + amount > cap) return { ok: false, error: "daily_cap" };
   const v = store.get("ip:" + visitor);
   if (v >= LOOKS_PER_VISITOR_DAY) return { ok: false, error: "visitor_cap" };
   const pv = store.get("vid:" + visitor + ":" + video);
@@ -38,7 +51,7 @@ export function reserve(store, visitor, video, amount = RESERVE) {
 // Count one cached answer for a visitor. Does not touch the neuron count.
 export function countHit(store, visitor) {
   const k = "hit:" + visitor, n = store.get(k);
-  if (n >= CACHED_LOOKS_PER_VISITOR_DAY) return { ok: false, error: "visitor_cap" };
+  if (n >= CACHED_LOOKS_PER_VISITOR_DAY) return { ok: false, error: "hit_cap" };
   store.set(k, n + 1);
   return { ok: true };
 }

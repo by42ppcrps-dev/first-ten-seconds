@@ -27,8 +27,8 @@ export class Budget extends DurableObject {
     if (!(await this.ctx.storage.getAlarm())) await this.ctx.storage.setAlarm(Date.now() + 36 * 3600 * 1000);
   }
 
-  async reserve(visitor, video, amount) {
-    const r = reserve(this.store, visitor, video, amount);
+  async reserve(visitor, video, amount, cap) {
+    const r = reserve(this.store, visitor, video, amount, cap);
     if (r.ok) await this.expireLater();
     return r;
   }

@@ -20,7 +20,7 @@ The video stays on your computer. Only small 1024x288 pictures (your screenshot 
 4. When the daily budget, a visitor limit or the Cloudflare free allowance runs out, the page switches to confirm mode: click the first shot that shows your app, and step 3 still runs locally with no model calls.
 
 ## Accuracy
-The browser benchmark will write `bench/results.md` (misses included) on its first run; it has not run yet. Until then, `/how` shows a reference run of the same method in Python, labeled as such: 5 of 6 dev videos and 4 of 4 holdout videos within 1.0 s, one miss (motiontracker-v5, a big caption over the app) and one false positive on a video with no app (rcv-yt).
+The browser benchmark will write `bench/results.md` (misses included) on its first run; it has not run yet. Until then, `/how` shows a run of an earlier version of this method in Python (before the blank-frame skip and answer reuse were added), labeled as such: 5 of 6 dev videos and 4 of 4 holdout videos within 1.0 s, one miss (motiontracker-v5, a big caption over the app) and one false positive on a video with no app (rcv-yt).
 
 ## Run locally
 ```

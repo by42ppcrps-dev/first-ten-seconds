@@ -53,8 +53,10 @@ export function renderTimeline(root, { duration, thumbs = [], shots = [], answer
       b.dataset.shot = s.index;
       b.dataset.t = s.t;
       const thumb = thumbs[Math.min(thumbs.length - 1, Math.round(s.t * 2))];
-      if (thumb && (s.end - s.start) * PPS >= 40) { const im = el("img"); im.src = thumb; im.alt = ""; b.appendChild(im); }
-      b.appendChild(el("span", "shot-t", display(s.start)));
+      // Under about 40 px there is no room for a thumbnail or a time label next to the neighbor's.
+      const roomy = (s.end - s.start) * PPS >= 40;
+      if (thumb && roomy) { const im = el("img"); im.src = thumb; im.alt = ""; b.appendChild(im); }
+      if (roomy) b.appendChild(el("span", "shot-t", display(s.start)));
       if (pickable) {
         b.type = "button";
         b.title = "Shot " + (s.index + 1) + " from " + display(s.start) + ". Click if this is the first shot that shows your app.";

@@ -153,6 +153,12 @@ function exportInput() {
   return { fileName: state.file.name, rate: r, width: state.video.videoWidth, height: state.video.videoHeight, durationFrames: Math.floor(state.video.duration * r.fps), cutFrame: frameAt(state.answer, r) };
 }
 
+// No answer yet means no cut point, so there is nothing to export.
+function exportCut(ext, build, type) {
+  if (state.answer === null || !state.file || !state.video) return;
+  download(state.file.name.replace(/\.[^.]+$/, "") + "-fts." + ext, build(exportInput()), type);
+}
+
 function init() {
   $("fps").innerHTML = RATE_LABELS.map((l) => `<option>${l}</option>`).join("");
   $("fps").value = "30";
@@ -172,9 +178,9 @@ function init() {
     if (!state.ref && state.file) setStatus("Now add one screenshot of your app.");
     run();
   });
-  $("x-edl").addEventListener("click", () => download(state.file.name.replace(/\.[^.]+$/, "") + "-fts.edl", buildEDL(exportInput()), "text/plain"));
-  $("x-xml").addEventListener("click", () => download(state.file.name.replace(/\.[^.]+$/, "") + "-fts.xml", buildXMEML(exportInput()), "application/xml"));
-  $("x-fcpxml").addEventListener("click", () => download(state.file.name.replace(/\.[^.]+$/, "") + "-fts.fcpxml", buildFCPXML(exportInput()), "application/xml"));
+  $("x-edl").addEventListener("click", () => exportCut("edl", buildEDL, "text/plain"));
+  $("x-xml").addEventListener("click", () => exportCut("xml", buildXMEML, "application/xml"));
+  $("x-fcpxml").addEventListener("click", () => exportCut("fcpxml", buildFCPXML, "application/xml"));
   // Example built from real frames of ciph.mp4 (Can I Park Here demo), 2 fps, first 20 s.
   const thumbs = Array.from({ length: 40 }, (_, i) => `/img/strip/ciph-${String(i + 1).padStart(3, "0")}.jpg`);
   renderTimeline($("example-timeline"), { duration: 20, thumbs, answer: 368 / 30 });

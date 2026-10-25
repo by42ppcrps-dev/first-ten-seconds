@@ -1,7 +1,7 @@
 // Fails on em dashes, emoji, or banned marketing words in shipped files and docs.
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
-const roots = ["public", "src", "README.md", "bench/run.mjs"];
+const roots = ["public", "src", "README.md", "bench/run.mjs", "bench/BUDGET-PLAN.md"];
 const bad = [/—/, /[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/u, /\b(unlock|supercharge|seamless|effortless|revolutioni[sz]e)\b/i];
 let fail = 0;
 function walk(p) {

@@ -1,5 +1,7 @@
 // Browser benchmark: drives the shipped page in system Chrome on every video, then scores.
-// Usage: node bench/run.mjs [--base http://localhost:8787] [--set dev|holdout|rcv|all] [--only id] [--dry]
+// Usage: node bench/run.mjs [--base http://localhost:8787] [--set dev|holdout|rcv|all] [--only id] [--dry] [--max-neurons 4000]
+//   Order is holdout, then dev, then rcv (see bench/BUDGET-PLAN.md). Once the estimated neurons for the batch
+//   would pass --max-neurons, every further /api/look is answered locally with daily_cap and never reaches the model.
 //   GT_DIR (default /workspace/fts/gt) holds videos/, refs/ and the truth files.
 //   Truth files are read only after all runs finish, to score.
 //   --dry: for a server started with AI_DISABLED=1. Checks the pipeline end to end and writes bench/out/ only.
@@ -17,10 +19,13 @@ const ONLY = opt("only", null);
 const DRY = args.includes("--dry");
 const GT = process.env.GT_DIR || "/workspace/fts/gt";
 const CHROME = process.env.CHROME || "/usr/bin/google-chrome";
+const MAX_NEURONS = Number(opt("max-neurons", "4000"));
+const LOOK_WORST = 160; // src/budget-core.js RESERVE: both models, both retried
+let batchNeurons = 0, stopped = false;
 
 const VIDEOS = [
-  ...["ciph", "faultrehearsal-v4", "graphhacks-yt", "motiontracker-v1", "boardclerk-v06", "motiontracker-v5"].map((id) => ({ id, set: "dev", ref: `${id}__ref1.png` })),
   ...["h-boardclerk-v04", "h-motiontracker-v3", "h-taint-v1", "h-faultrehearsal-v1"].map((id) => ({ id, set: "holdout", ref: `${id}__ref1.png` })),
+  ...["ciph", "faultrehearsal-v4", "graphhacks-yt", "motiontracker-v1", "boardclerk-v06", "motiontracker-v5"].map((id) => ({ id, set: "dev", ref: `${id}__ref1.png` })),
   { id: "rcv-yt", set: "rcv", ref: "boardclerk-v06__ref1.png" },
 ].filter((v) => (SET === "all" || v.set === SET) && (!ONLY || v.id === ONLY));
 
@@ -33,12 +38,23 @@ async function loadPlaywright() {
 
 async function runOne(browser, v) {
   const page = await browser.newPage();
-  let calls = 0, neurons = 0, errors = 0;
+  let calls = 0, neurons = 0, errors = 0, cached = 0, held = 0;
+  // Hard stop for the batch: answer locally instead of spending past the limit.
+  await page.route("**/api/look", (route) => {
+    if (!DRY && batchNeurons + LOOK_WORST > MAX_NEURONS) {
+      stopped = true; held++;
+      return route.fulfill({ status: 429, contentType: "application/json", body: JSON.stringify({ error: "daily_cap", resets_at: null }) });
+    }
+    return route.continue();
+  });
   page.on("response", async (res) => {
     if (!res.url().endsWith("/api/look")) return;
     try {
       const b = await res.json();
-      if (res.ok()) { calls += 1 + (b.mistral ? 1 : 0); neurons += b.neurons_used_estimate || 0; } else errors++;
+      const n = b.neurons_used_estimate || 0;
+      neurons += n; batchNeurons += n;
+      if (b.cached) cached++;
+      if (res.ok()) { if (!b.cached) calls += 1 + (b.mistral ? 1 : 0); } else errors++;
     } catch { errors++; }
   });
   const t0 = Date.now();
@@ -55,7 +71,7 @@ async function runOne(browser, v) {
     if (shot) { await page.evaluate(() => { window.__ftsResult = null; }); await shot.click(); await page.waitForFunction(() => window.__ftsResult, null, { timeout: 120000 }); picked = await page.evaluate(() => window.__ftsResult); }
   }
   await page.close();
-  return { id: v.id, set: v.set, ref: v.ref, status: r.status, error: r.error, answer: r.status === "found" ? r.answer : null, looks: r.looks, calls, neurons: Math.round(neurons * 10) / 10, http_errors: errors, shots: r.shots, ms: Date.now() - t0, verdicts: r.verdicts, picked };
+  return { id: v.id, set: v.set, ref: v.ref, status: r.status, error: r.error, answer: r.status === "found" ? r.answer : null, looks: r.looks, calls, neurons: Math.round(neurons * 10) / 10, http_errors: errors, shots: r.shots, ms: Date.now() - t0, verdicts: r.verdicts, picked, cached, held_by_hard_stop: held, skipped: (r.verdicts || []).filter((x) => x.skipped).length };
 }
 
 function truthMap() {
@@ -77,7 +93,7 @@ async function main() {
     process.stdout.write(`${v.id} ... `);
     try { rows.push(await runOne(browser, v)); } catch (e) { rows.push({ id: v.id, set: v.set, status: "bench_error", error: String(e.message).slice(0, 200), answer: null }); }
     const last = rows[rows.length - 1];
-    console.log(last.status, last.answer, last.error || "", last.picked ? `picked=${last.picked.answer}` : "");
+    console.log(last.status, last.answer, last.error || "", last.picked ? `picked=${last.picked.answer}` : "", `looks=${last.looks ?? ""} calls=${last.calls ?? ""} neurons~${last.neurons ?? ""} cached=${last.cached ?? ""} skipped=${last.skipped ?? ""} batch~${Math.round(batchNeurons)}${stopped ? " HARD STOP" : ""}`);
   }
   await browser.close();
 
@@ -100,8 +116,8 @@ async function main() {
   }
   const date = new Date().toISOString();
   writeFileSync(join(HERE, "results.json"), JSON.stringify({ date, commit, base: BASE, frozen, rows }, null, 1));
-  const lines = [`\n## Run ${date} (commit ${commit})`, "", "Models: @cf/meta/llama-4-scout-17b-16e-instruct, then @cf/mistralai/mistral-small-3.1-24b-instruct for candidates. Cut 0.06, forced split 6 s, refine 30 fps.", "", "```", frozen, "```", "", "| video | set | answer s | truth s | error s | hit (1.0 s) | calls | neurons |", "|---|---|---|---|---|---|---|---|"];
-  for (const r of rows) lines.push(`| ${r.id} | ${r.set} | ${r.answer ?? "none"} | ${r.truth ?? "none"} | ${r.error_s ?? ""} | ${r.hit ? "hit" : "MISS"}${r.note ? " (" + r.note + ")" : ""} | ${r.calls ?? ""} | ${r.neurons ?? ""} |`);
+  const lines = [`\n## Run ${date} (commit ${commit})`, "", `Models: @cf/meta/llama-4-scout-17b-16e-instruct, then @cf/mistralai/mistral-small-3.1-24b-instruct for candidates. Cut 0.06, forced split 6 s, refine at the video frame rate. Hard stop ${MAX_NEURONS} neurons; batch total ~${Math.round(batchNeurons)}${stopped ? " (hard stop reached)" : ""}.`, "", "```", frozen, "```", "", "| video | set | answer s | truth s | error s | hit (1.0 s) | calls | neurons | cached | skipped |", "|---|---|---|---|---|---|---|---|---|---|"];
+  for (const r of rows) lines.push(`| ${r.id} | ${r.set} | ${r.answer ?? "none"} | ${r.truth ?? "none"} | ${r.error_s ?? ""} | ${r.hit ? "hit" : "MISS"}${r.note ? " (" + r.note + ")" : ""} | ${r.calls ?? ""} | ${r.neurons ?? ""} | ${r.cached ?? ""} | ${r.skipped ?? ""} |`);
   for (const s of ["dev", "holdout", "rcv"]) { const g = rows.filter((r) => r.set === s); if (g.length) lines.push(`\n${s}: ${g.filter((r) => r.hit).length} of ${g.length} hit`); }
   if (!existsSync(join(HERE, "results.md"))) writeFileSync(join(HERE, "results.md"), "# Benchmark results\n\nEvery browser run is appended. Misses are kept.\n");
   appendFileSync(join(HERE, "results.md"), lines.join("\n") + "\n");

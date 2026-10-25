@@ -147,7 +147,8 @@ export async function handleLook(request, env) {
   } catch (err) {
     await budget.settle(spent - RESERVE);
     const code = err.code || "model_failed";
-    return json(code === "ai_quota" ? 429 : 502, code === "ai_quota" ? { error: code, resets_at: nextResetIso() } : { error: code });
+    const est = Math.round(spent * 10) / 10;
+    return json(code === "ai_quota" ? 429 : 502, code === "ai_quota" ? { error: code, resets_at: nextResetIso(), neurons_used_estimate: est } : { error: code, neurons_used_estimate: est });
   }
   await budget.settle(spent - RESERVE);
   const app = isCandidate(llama) && !!mistral && mistral.ui_share !== "none";

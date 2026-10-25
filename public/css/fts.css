@@ -74,3 +74,4 @@ footer { border-top: 1px solid var(--rule); margin-top: 48px; padding: 16px 0 32
   nav a { margin-left: 0; margin-right: 16px; }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+.tl-track.no-shots { height: 76px; }

@@ -8,6 +8,7 @@ export function renderTimeline(root, { duration, thumbs = [], shots = [], answer
   root.innerHTML = "";
   const track = el("div", "tl-track");
   track.style.width = width + "px";
+  if (!shots.length) track.classList.add("no-shots");
 
   const ruler = el("div", "tl-ruler");
   for (let s = 0; s <= Math.floor(duration * 2); s++) {

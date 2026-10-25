@@ -36,5 +36,8 @@ Deploying: `wrangler.jsonc` ships with `AI_DISABLED=1`, so a plain `npm run depl
 
 Limits: `FTS_DAILY_CAP` neurons a day for the site (default and maximum 6,000; 0 turns automatic finding off), 40 looks per visitor per day, 25 per video. Set `IP_SALT` as a secret before deploying; without it (and without `DEV=1`, which the npm dev scripts set) `/api/look` refuses to run. Answers are cached by a SHA-256 of the composite in the Budget Durable Object, so replaying a video costs no neurons.
 
+## Planning docs
+Built with the Devpost Learn AI Basics skill pack (`.agents/skills/`, `skills-lock.json`). The planning documents it produced are in `devpost/`: [scope.md](devpost/scope.md), [prd.md](devpost/prd.md), [spec.md](devpost/spec.md), plus [checklist.md](devpost/checklist.md) and [decision-log.md](devpost/decision-log.md).
+
 ## License
 MIT. Fonts: Archivo and IBM Plex Mono, SIL Open Font License, self-hosted.

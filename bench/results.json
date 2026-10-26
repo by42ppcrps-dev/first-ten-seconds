@@ -1,6 +1,6 @@
 {
- "date": "2026-10-26T07:00:29.107Z",
- "commit": "f001ffd",
+ "date": "2026-10-26T08:24:47.741Z",
+ "commit": "91a808b",
  "base": "http://localhost:8788",
  "frozen": "ground-truth.json: OK\nholdout-truth.json: OK\nrefs/boardclerk-v06__ref1.png: OK\nrefs/boardclerk-v06__ref2.png: OK\nrefs/ciph__ref1.png: OK\nrefs/ciph__ref2.png: OK\nrefs/faultrehearsal-v4__ref1.png: OK\nrefs/faultrehearsal-v4__ref2.png: OK\nrefs/graphhacks-yt__ref1.png: OK\nrefs/graphhacks-yt__ref2.png: OK\nrefs/h-boardclerk-v04__ref1.png: OK\nrefs/h-boardclerk-v04__ref2.png: OK\nrefs/h-faultrehearsal-v1__ref1.png: OK\nrefs/h-faultrehearsal-v1__ref2.png: OK\nrefs/h-motiontracker-v3__ref1.png: OK\nrefs/h-motiontracker-v3__ref2.png: OK\nrefs/h-taint-v1__ref1.png: OK\nrefs/h-taint-v1__ref2.png: OK\nrefs/motiontracker-v1__ref1.png: OK\nrefs/motiontracker-v1__ref2.png: OK\nrefs/motiontracker-v5__ref1.png: OK\nrefs/motiontracker-v5__ref2.png: OK\nvideos/boardclerk-v04.mp4: OK\nvideos/boardclerk-v06.mp4: OK\nvideos/ciph.mp4: OK\nvideos/faultrehearsal-v4.mp4: OK\nvideos/graphhacks-yt.mp4: OK\nvideos/h-boardclerk-v04.mp4: OK\nvideos/h-faultrehearsal-v1.mp4: OK\nvideos/h-motiontracker-v3.mp4: OK\nvideos/h-taint-v1.mp4: OK\nvideos/motiontracker-v1.mp4: OK\nvideos/motiontracker-v5.mp4: OK\nvideos/rcv-yt.mp4: OK\nvideos/ref-src-faultrehearsal-v1.mp4: OK",
  "rows": [
@@ -10,30 +10,17 @@
    "ref": "h-boardclerk-v04__ref1.png",
    "status": "found",
    "error": null,
-   "answer": 0.2,
-   "looks": 2,
-   "calls": 3,
-   "neurons": 67.4,
+   "answer": 0,
+   "looks": 1,
+   "calls": 2,
+   "neurons": 43.9,
    "http_errors": 0,
-   "shots": 43,
-   "ms": 37300,
+   "shots": 40,
+   "ms": 39755,
    "verdicts": [
     {
      "shot": 0,
-     "t": 0,
-     "app": false,
-     "llama": {
-      "ui_share": "none",
-      "headline": false,
-      "photo": false
-     },
-     "mistral": null,
-     "neurons": 0,
-     "cached": true
-    },
-    {
-     "shot": 1,
-     "t": 1,
+     "t": 0.5,
      "app": true,
      "llama": {
       "ui_share": "most",
@@ -42,19 +29,20 @@
      },
      "mistral": {
       "ui_share": "part",
-      "headline": false,
-      "photo": true
+      "headline": true,
+      "photo": false
      },
-     "neurons": 0,
-     "cached": true
+     "neurons": 43.9,
+     "cached": false,
+     "gate": 0.779
     }
    ],
    "picked": null,
-   "cached": 2,
+   "cached": 0,
    "held_by_hard_stop": 0,
    "skipped": 0,
    "truth": 0,
-   "error_s": 0.2,
+   "error_s": 0,
    "hit": true,
    "note": ""
   },
@@ -64,43 +52,17 @@
    "ref": "h-motiontracker-v3__ref1.png",
    "status": "found",
    "error": null,
-   "answer": 12.333333333333334,
-   "looks": 3,
-   "calls": 4,
-   "neurons": 91.1,
+   "answer": 0,
+   "looks": 1,
+   "calls": 2,
+   "neurons": 43.9,
    "http_errors": 0,
    "shots": 13,
-   "ms": 26162,
+   "ms": 14194,
    "verdicts": [
     {
      "shot": 0,
      "t": 0.5,
-     "app": false,
-     "llama": {
-      "ui_share": "all",
-      "headline": true,
-      "photo": false
-     },
-     "mistral": null,
-     "neurons": 0,
-     "cached": true
-    },
-    {
-     "shot": 1,
-     "t": 6.5,
-     "app": false,
-     "llama": {
-      "ui_share": "none",
-      "headline": false,
-      "photo": false
-     },
-     "mistral": null,
-     "neurons": 0,
-     "cached": true
-    },
-    {
-     "shot": 2,
-     "t": 12.5,
      "app": true,
      "llama": {
       "ui_share": "all",
@@ -112,17 +74,18 @@
       "headline": true,
       "photo": false
      },
-     "neurons": 0,
-     "cached": true
+     "neurons": 43.9,
+     "cached": false,
+     "gate": 0.951
     }
    ],
    "picked": null,
-   "cached": 3,
+   "cached": 0,
    "held_by_hard_stop": 0,
    "skipped": 0,
    "truth": 0,
-   "error_s": 12.33,
-   "hit": false,
+   "error_s": 0,
+   "hit": true,
    "note": ""
   },
   {
@@ -131,47 +94,41 @@
    "ref": "h-taint-v1__ref1.png",
    "status": "found",
    "error": null,
-   "answer": 22.1,
+   "answer": 26.633333333333333,
    "looks": 6,
-   "calls": 11,
-   "neurons": 243,
+   "calls": 10,
+   "neurons": 222.6,
    "http_errors": 0,
-   "shots": 18,
-   "ms": 35680,
+   "shots": 17,
+   "ms": 40688,
    "verdicts": [
     {
      "shot": 0,
      "t": 0.5,
      "app": false,
      "llama": {
-      "ui_share": "most",
-      "headline": false,
-      "photo": false
-     },
-     "mistral": {
       "ui_share": "none",
       "headline": true,
       "photo": false
      },
-     "neurons": 0,
-     "cached": true
+     "mistral": null,
+     "neurons": 23.5,
+     "cached": false,
+     "gate": 0.965
     },
     {
      "shot": 1,
      "t": 6.5,
      "app": false,
      "llama": {
-      "ui_share": "most",
-      "headline": false,
-      "photo": false
-     },
-     "mistral": {
-      "ui_share": "none",
+      "ui_share": "part",
       "headline": true,
       "photo": false
      },
-     "neurons": 0,
-     "cached": true
+     "mistral": null,
+     "neurons": 23.5,
+     "cached": false,
+     "gate": 0.968
     },
     {
      "shot": 2,
@@ -187,25 +144,13 @@
       "headline": true,
       "photo": false
      },
-     "neurons": 0,
-     "cached": true
+     "neurons": 43.9,
+     "cached": false,
+     "gate": 0.972
     },
     {
      "shot": 3,
-     "t": 18,
-     "app": false,
-     "llama": {
-      "ui_share": "part",
-      "headline": true,
-      "photo": false
-     },
-     "mistral": null,
-     "neurons": 0,
-     "cached": true
-    },
-    {
-     "shot": 4,
-     "t": 19,
+     "t": 18.5,
      "app": false,
      "llama": {
       "ui_share": "all",
@@ -217,12 +162,31 @@
       "headline": true,
       "photo": false
      },
-     "neurons": 0,
-     "cached": true
+     "neurons": 43.9,
+     "cached": false,
+     "gate": 0.986
+    },
+    {
+     "shot": 4,
+     "t": 24.5,
+     "app": false,
+     "llama": {
+      "ui_share": "all",
+      "headline": false,
+      "photo": false
+     },
+     "mistral": {
+      "ui_share": "none",
+      "headline": true,
+      "photo": false
+     },
+     "neurons": 43.9,
+     "cached": false,
+     "gate": 0.976
     },
     {
      "shot": 5,
-     "t": 25,
+     "t": 30.5,
      "app": true,
      "llama": {
       "ui_share": "all",
@@ -231,19 +195,20 @@
      },
      "mistral": {
       "ui_share": "all",
-      "headline": false,
+      "headline": true,
       "photo": false
      },
-     "neurons": 0,
-     "cached": true
+     "neurons": 43.9,
+     "cached": false,
+     "gate": 0.975
     }
    ],
    "picked": null,
-   "cached": 6,
+   "cached": 0,
    "held_by_hard_stop": 0,
    "skipped": 0,
    "truth": 18.33,
-   "error_s": 3.77,
+   "error_s": 8.3,
    "hit": false,
    "note": ""
   },
@@ -253,43 +218,31 @@
    "ref": "h-faultrehearsal-v1__ref1.png",
    "status": "found",
    "error": null,
-   "answer": 14.133333333333333,
-   "looks": 6,
-   "calls": 7,
-   "neurons": 161.4,
+   "answer": 9.266666666666667,
+   "looks": 2,
+   "calls": 3,
+   "neurons": 67.4,
    "http_errors": 0,
-   "shots": 39,
-   "ms": 68213,
+   "shots": 37,
+   "ms": 59879,
    "verdicts": [
     {
      "shot": 0,
      "t": 0.5,
      "app": false,
-     "llama": {
-      "ui_share": "part",
-      "headline": true,
-      "photo": false
-     },
-     "mistral": null,
-     "neurons": 0,
-     "cached": true
+     "skipped": "unlike_ref",
+     "gate": 0.344
     },
     {
      "shot": 1,
-     "t": 5,
+     "t": 4.5,
      "app": false,
-     "llama": {
-      "ui_share": "most",
-      "headline": true,
-      "photo": false
-     },
-     "mistral": null,
-     "neurons": 0,
-     "cached": true
+     "skipped": "unlike_ref",
+     "gate": 0.359
     },
     {
      "shot": 2,
-     "t": 6,
+     "t": 5.5,
      "app": false,
      "llama": {
       "ui_share": "most",
@@ -297,38 +250,20 @@
       "photo": false
      },
      "mistral": null,
-     "neurons": 0,
-     "cached": true
+     "neurons": 23.5,
+     "cached": false,
+     "gate": 0.669
     },
     {
      "shot": 3,
      "t": 9,
      "app": false,
-     "llama": {
-      "ui_share": "most",
-      "headline": true,
-      "photo": false
-     },
-     "mistral": null,
-     "neurons": 0,
-     "cached": true
+     "skipped": "unlike_ref",
+     "gate": 0.358
     },
     {
      "shot": 4,
      "t": 10,
-     "app": false,
-     "llama": {
-      "ui_share": "all",
-      "headline": true,
-      "photo": false
-     },
-     "mistral": null,
-     "neurons": 0,
-     "cached": true
-    },
-    {
-     "shot": 5,
-     "t": 16,
      "app": true,
      "llama": {
       "ui_share": "all",
@@ -340,17 +275,18 @@
       "headline": false,
       "photo": false
      },
-     "neurons": 0,
-     "cached": true
+     "neurons": 43.9,
+     "cached": false,
+     "gate": 0.98
     }
    ],
    "picked": null,
-   "cached": 6,
+   "cached": 0,
    "held_by_hard_stop": 0,
-   "skipped": 0,
+   "skipped": 3,
    "truth": 9.27,
-   "error_s": 4.86,
-   "hit": false,
+   "error_s": 0,
+   "hit": true,
    "note": ""
   },
   {
@@ -360,38 +296,26 @@
    "status": "found",
    "error": null,
    "answer": 12.266666666666667,
-   "looks": 10,
-   "calls": 11,
-   "neurons": 255.4,
+   "looks": 6,
+   "calls": 7,
+   "neurons": 161.4,
    "http_errors": 0,
-   "shots": 33,
-   "ms": 37698,
+   "shots": 34,
+   "ms": 30717,
    "verdicts": [
     {
      "shot": 0,
      "t": 0.5,
      "app": false,
-     "llama": {
-      "ui_share": "none",
-      "headline": true,
-      "photo": true
-     },
-     "mistral": null,
-     "neurons": 23.5,
-     "cached": false
+     "skipped": "unlike_ref",
+     "gate": 0.234
     },
     {
      "shot": 1,
      "t": 3,
      "app": false,
-     "llama": {
-      "ui_share": "none",
-      "headline": false,
-      "photo": false
-     },
-     "mistral": null,
-     "neurons": 23.5,
-     "cached": false
+     "skipped": "unlike_ref",
+     "gate": 0.393
     },
     {
      "shot": 2,
@@ -404,62 +328,53 @@
      },
      "mistral": null,
      "neurons": 23.5,
-     "cached": false
+     "cached": false,
+     "gate": 0.666
     },
     {
      "shot": 3,
-     "t": 6,
+     "t": 5,
      "app": false,
      "llama": {
       "ui_share": "none",
-      "headline": false,
-      "photo": true
+      "headline": true,
+      "photo": false
      },
      "mistral": null,
      "neurons": 23.5,
-     "cached": false
+     "cached": false,
+     "gate": 0.666
     },
     {
      "shot": 4,
-     "t": 7,
+     "t": 6,
      "app": false,
-     "llama": {
-      "ui_share": "none",
-      "headline": false,
-      "photo": true
-     },
-     "mistral": null,
-     "neurons": 23.5,
-     "cached": false
+     "skipped": "unlike_ref",
+     "gate": 0.315
     },
     {
      "shot": 5,
-     "t": 8,
+     "t": 7,
      "app": false,
-     "llama": {
-      "ui_share": "none",
-      "headline": false,
-      "photo": true
-     },
-     "mistral": null,
-     "neurons": 23.5,
-     "cached": false
+     "skipped": "unlike_ref",
+     "gate": 0.23
     },
     {
      "shot": 6,
-     "t": 9.5,
+     "t": 8,
      "app": false,
-     "llama": {
-      "ui_share": "none",
-      "headline": false,
-      "photo": true
-     },
-     "mistral": null,
-     "neurons": 23.5,
-     "cached": false
+     "skipped": "unlike_ref",
+     "gate": 0.396
     },
     {
      "shot": 7,
+     "t": 9,
+     "app": false,
+     "skipped": "unlike_ref",
+     "gate": 0.265
+    },
+    {
+     "shot": 8,
      "t": 10.5,
      "app": false,
      "llama": {
@@ -469,10 +384,11 @@
      },
      "mistral": null,
      "neurons": 23.5,
-     "cached": false
+     "cached": false,
+     "gate": 0.679
     },
     {
-     "shot": 8,
+     "shot": 9,
      "t": 11.5,
      "app": false,
      "llama": {
@@ -482,10 +398,25 @@
      },
      "mistral": null,
      "neurons": 23.5,
-     "cached": false
+     "cached": false,
+     "gate": 0.637
     },
     {
-     "shot": 9,
+     "shot": 10,
+     "t": 12,
+     "app": false,
+     "llama": {
+      "ui_share": "part",
+      "headline": false,
+      "photo": true
+     },
+     "mistral": null,
+     "neurons": 23.5,
+     "cached": false,
+     "gate": 0.636
+    },
+    {
+     "shot": 11,
      "t": 13,
      "app": true,
      "llama": {
@@ -499,13 +430,14 @@
       "photo": true
      },
      "neurons": 43.9,
-     "cached": false
+     "cached": false,
+     "gate": 0.724
     }
    ],
    "picked": null,
    "cached": 0,
    "held_by_hard_stop": 0,
-   "skipped": 0,
+   "skipped": 6,
    "truth": 12.27,
    "error_s": 0,
    "hit": true,
@@ -517,43 +449,31 @@
    "ref": "faultrehearsal-v4__ref1.png",
    "status": "found",
    "error": null,
-   "answer": 14.633333333333333,
-   "looks": 6,
-   "calls": 7,
-   "neurons": 161.4,
+   "answer": 9.266666666666667,
+   "looks": 2,
+   "calls": 3,
+   "neurons": 67.4,
    "http_errors": 0,
    "shots": 46,
-   "ms": 87732,
+   "ms": 61794,
    "verdicts": [
     {
      "shot": 0,
      "t": 0.5,
      "app": false,
-     "llama": {
-      "ui_share": "most",
-      "headline": true,
-      "photo": false
-     },
-     "mistral": null,
-     "neurons": 23.5,
-     "cached": false
+     "skipped": "unlike_ref",
+     "gate": 0.344
     },
     {
      "shot": 1,
-     "t": 5,
+     "t": 4.5,
      "app": false,
-     "llama": {
-      "ui_share": "most",
-      "headline": true,
-      "photo": false
-     },
-     "mistral": null,
-     "neurons": 23.5,
-     "cached": false
+     "skipped": "unlike_ref",
+     "gate": 0.359
     },
     {
      "shot": 2,
-     "t": 6,
+     "t": 5.5,
      "app": false,
      "llama": {
       "ui_share": "most",
@@ -562,37 +482,19 @@
      },
      "mistral": null,
      "neurons": 23.5,
-     "cached": false
+     "cached": false,
+     "gate": 0.669
     },
     {
      "shot": 3,
      "t": 9,
      "app": false,
-     "llama": {
-      "ui_share": "most",
-      "headline": true,
-      "photo": false
-     },
-     "mistral": null,
-     "neurons": 23.5,
-     "cached": false
+     "skipped": "unlike_ref",
+     "gate": 0.358
     },
     {
      "shot": 4,
      "t": 10,
-     "app": false,
-     "llama": {
-      "ui_share": "all",
-      "headline": true,
-      "photo": false
-     },
-     "mistral": null,
-     "neurons": 23.5,
-     "cached": false
-    },
-    {
-     "shot": 5,
-     "t": 16,
      "app": true,
      "llama": {
       "ui_share": "all",
@@ -605,16 +507,17 @@
       "photo": false
      },
      "neurons": 43.9,
-     "cached": false
+     "cached": false,
+     "gate": 0.98
     }
    ],
    "picked": null,
    "cached": 0,
    "held_by_hard_stop": 0,
-   "skipped": 0,
+   "skipped": 3,
    "truth": 9.33,
-   "error_s": 5.3,
-   "hit": false,
+   "error_s": -0.06,
+   "hit": true,
    "note": ""
   },
   {
@@ -623,13 +526,13 @@
    "ref": "graphhacks-yt__ref1.png",
    "status": "found",
    "error": null,
-   "answer": 16.033333333333335,
+   "answer": 15.966666666666667,
    "looks": 4,
    "calls": 8,
    "neurons": 175.6,
    "http_errors": 0,
-   "shots": 21,
-   "ms": 32261,
+   "shots": 23,
+   "ms": 29827,
    "verdicts": [
     {
      "shot": 0,
@@ -646,7 +549,8 @@
       "photo": false
      },
      "neurons": 43.9,
-     "cached": false
+     "cached": false,
+     "gate": 0.96
     },
     {
      "shot": 1,
@@ -663,7 +567,8 @@
       "photo": false
      },
      "neurons": 43.9,
-     "cached": false
+     "cached": false,
+     "gate": 0.962
     },
     {
      "shot": 2,
@@ -680,14 +585,15 @@
       "photo": false
      },
      "neurons": 43.9,
-     "cached": false
+     "cached": false,
+     "gate": 0.966
     },
     {
      "shot": 3,
-     "t": 18.5,
+     "t": 16.5,
      "app": true,
      "llama": {
-      "ui_share": "all",
+      "ui_share": "most",
       "headline": false,
       "photo": false
      },
@@ -697,7 +603,8 @@
       "photo": false
      },
      "neurons": 43.9,
-     "cached": false
+     "cached": false,
+     "gate": 0.844
     }
    ],
    "picked": null,
@@ -705,7 +612,7 @@
    "held_by_hard_stop": 0,
    "skipped": 0,
    "truth": 16.2,
-   "error_s": -0.17,
+   "error_s": -0.23,
    "hit": true,
    "note": ""
   },
@@ -721,33 +628,35 @@
    "neurons": 90.9,
    "http_errors": 0,
    "shots": 14,
-   "ms": 23728,
+   "ms": 20650,
    "verdicts": [
     {
      "shot": 0,
      "t": 0.5,
      "app": false,
      "llama": {
-      "ui_share": "none",
+      "ui_share": "part",
       "headline": true,
       "photo": false
      },
      "mistral": null,
      "neurons": 23.5,
-     "cached": false
+     "cached": false,
+     "gate": 0.934
     },
     {
      "shot": 1,
      "t": 6.5,
      "app": false,
      "llama": {
-      "ui_share": "none",
+      "ui_share": "part",
       "headline": true,
       "photo": false
      },
      "mistral": null,
      "neurons": 0,
-     "cached": true
+     "cached": true,
+     "gate": 0.934
     },
     {
      "shot": 2,
@@ -760,7 +669,8 @@
      },
      "mistral": null,
      "neurons": 23.5,
-     "cached": false
+     "cached": false,
+     "gate": 0.934
     },
     {
      "shot": 3,
@@ -777,7 +687,8 @@
       "photo": false
      },
      "neurons": 43.9,
-     "cached": false
+     "cached": false,
+     "gate": 0.936
     }
    ],
    "picked": null,
@@ -800,15 +711,15 @@
    "calls": 2,
    "neurons": 43.9,
    "http_errors": 0,
-   "shots": 49,
-   "ms": 34723,
+   "shots": 47,
+   "ms": 33680,
    "verdicts": [
     {
      "shot": 0,
      "t": 0.5,
      "app": true,
      "llama": {
-      "ui_share": "most",
+      "ui_share": "all",
       "headline": false,
       "photo": false
      },
@@ -818,7 +729,8 @@
       "photo": false
      },
      "neurons": 43.9,
-     "cached": false
+     "cached": false,
+     "gate": 0.663
     }
    ],
    "picked": null,
@@ -841,8 +753,8 @@
    "calls": 3,
    "neurons": 67.4,
    "http_errors": 0,
-   "shots": 17,
-   "ms": 34260,
+   "shots": 16,
+   "ms": 33174,
    "verdicts": [
     {
      "shot": 0,
@@ -855,11 +767,12 @@
      },
      "mistral": null,
      "neurons": 23.5,
-     "cached": false
+     "cached": false,
+     "gate": 0.982
     },
     {
      "shot": 1,
-     "t": 6,
+     "t": 6.5,
      "app": true,
      "llama": {
       "ui_share": "most",
@@ -872,7 +785,8 @@
       "photo": false
      },
      "neurons": 43.9,
-     "cached": false
+     "cached": false,
+     "gate": 0.947
     }
    ],
    "picked": null,
@@ -888,97 +802,68 @@
    "id": "rcv-yt",
    "set": "rcv",
    "ref": "boardclerk-v06__ref1.png",
-   "status": "found",
+   "status": "none",
    "error": null,
-   "answer": 53.5,
-   "looks": 9,
-   "calls": 10,
-   "neurons": 231.9,
+   "answer": null,
+   "looks": 2,
+   "calls": 2,
+   "neurons": 47,
    "http_errors": 0,
-   "shots": 17,
-   "ms": 28849,
+   "shots": 16,
+   "ms": 11728,
    "verdicts": [
     {
      "shot": 0,
      "t": 0.5,
      "app": false,
-     "llama": {
-      "ui_share": "none",
-      "headline": true,
-      "photo": false
-     },
-     "mistral": null,
-     "neurons": 23.5,
-     "cached": false
+     "skipped": "unlike_ref",
+     "gate": 0.355
     },
     {
      "shot": 1,
      "t": 6.5,
      "app": false,
-     "llama": {
-      "ui_share": "none",
-      "headline": true,
-      "photo": false
-     },
-     "mistral": null,
-     "neurons": 23.5,
-     "cached": false
+     "skipped": "unlike_ref",
+     "gate": 0.355
     },
     {
      "shot": 2,
      "t": 12.5,
      "app": false,
-     "llama": {
-      "ui_share": "none",
-      "headline": true,
-      "photo": false
-     },
-     "mistral": null,
-     "neurons": 23.5,
-     "cached": false
+     "skipped": "unlike_ref",
+     "gate": 0.354
     },
     {
      "shot": 3,
      "t": 18.5,
      "app": false,
-     "llama": {
-      "ui_share": "none",
-      "headline": true,
-      "photo": false
-     },
-     "mistral": null,
-     "neurons": 23.5,
-     "cached": false
+     "skipped": "unlike_ref",
+     "gate": 0.356
     },
     {
      "shot": 4,
      "t": 24.5,
      "app": false,
-     "llama": {
-      "ui_share": "none",
-      "headline": true,
-      "photo": false
-     },
-     "mistral": null,
-     "neurons": 23.5,
-     "cached": false
+     "skipped": "unlike_ref",
+     "gate": 0.356
     },
     {
      "shot": 5,
-     "t": 30,
+     "t": 30.5,
      "app": false,
      "llama": {
-      "ui_share": "part",
-      "headline": true,
+      "ui_share": "none",
+      "headline": false,
       "photo": false
      },
      "mistral": null,
      "neurons": 23.5,
-     "cached": false
+     "cached": false,
+     "gate": 0.582
     },
     {
      "shot": 6,
-     "t": 31,
+     "t": 36.5,
      "app": false,
      "llama": {
       "ui_share": "none",
@@ -987,65 +872,80 @@
      },
      "mistral": null,
      "neurons": 23.5,
-     "cached": false
+     "cached": false,
+     "gate": 0.584
     },
     {
      "shot": 7,
-     "t": 37,
+     "t": 39.5,
      "app": false,
-     "llama": {
-      "ui_share": "none",
-      "headline": false,
-      "photo": false
-     },
-     "mistral": null,
-     "neurons": 23.5,
-     "cached": false
+     "skipped": "unlike_ref",
+     "gate": 0.354
     },
     {
      "shot": 8,
-     "t": 40,
+     "t": 43.5,
      "app": false,
-     "skipped": "same_as_0"
+     "skipped": "same_as_5"
     },
     {
      "shot": 9,
-     "t": 44,
+     "t": 49,
      "app": false,
-     "skipped": "same_as_6"
+     "skipped": "unlike_ref",
+     "gate": 0.352
     },
     {
      "shot": 10,
-     "t": 49,
+     "t": 54,
      "app": false,
-     "skipped": "same_as_0"
+     "skipped": "unlike_ref",
+     "gate": 0.378
     },
     {
      "shot": 11,
-     "t": 54,
-     "app": true,
-     "llama": {
-      "ui_share": "all",
-      "headline": false,
-      "photo": false
-     },
-     "mistral": {
-      "ui_share": "all",
-      "headline": false,
-      "photo": false
-     },
-     "neurons": 43.9,
-     "cached": false
+     "t": 60,
+     "app": false,
+     "skipped": "unlike_ref",
+     "gate": 0.378
+    },
+    {
+     "shot": 12,
+     "t": 64,
+     "app": false,
+     "skipped": "unlike_ref",
+     "gate": 0.365
+    },
+    {
+     "shot": 13,
+     "t": 70,
+     "app": false,
+     "skipped": "unlike_ref",
+     "gate": 0.365
+    },
+    {
+     "shot": 14,
+     "t": 76,
+     "app": false,
+     "skipped": "unlike_ref",
+     "gate": 0.353
+    },
+    {
+     "shot": 15,
+     "t": 81.5,
+     "app": false,
+     "skipped": "unlike_ref",
+     "gate": 0.353
     }
    ],
    "picked": null,
    "cached": 0,
    "held_by_hard_stop": 0,
-   "skipped": 3,
+   "skipped": 14,
    "truth": null,
-   "hit": false,
+   "hit": true,
    "error_s": null,
-   "note": "false positive: no app in this video"
+   "note": ""
   }
  ]
 }

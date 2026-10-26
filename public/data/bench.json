@@ -88,7 +88,7 @@
       "answer": null,
       "truth": null,
       "hit": true,
-      "note": "no false positive: the color check skipped 14 of 16 shots"
+      "note": "no time returned; the color check skipped 13 of 16 shots, with a threshold set after this video's earlier false positive"
     }
   ]
 }

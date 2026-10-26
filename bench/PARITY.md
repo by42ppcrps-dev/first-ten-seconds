@@ -1,6 +1,6 @@
-# Browser vs reference parity (P5)
+# Browser vs reference parity
 
-Offline only: no model calls. The page (this commit) runs in headless Chrome from `python3 -m http.server 8797` with `/api/look` answered locally (always NO, so every shot up to the 25-look or 3:00 limit is composited). Harness: `bench/parity.mjs`. Analysis: work/p5/parity.py (ffmpeg composites built with the pipe.py command, `-q:v 4`). Shot times for Python come from work/diag/pyref.py (first 45 s).
+Offline only: no model calls. The page (this commit) runs in headless Chrome from `python3 -m http.server 8797` with `/api/look` answered locally (always NO, so every shot up to the 25-look or 3:00 limit is composited). Harness: `bench/parity.mjs`. Analysis: an offline script outside this repo (ffmpeg composites built with the reference pipeline's command, `-q:v 4`); reference shot times come from the same pipeline (first 45 s).
 
 **Status: all 11 videos analyzed.**
 
@@ -11,10 +11,10 @@ Composite build time in headless Chrome (desktop CPU, 1920x1080 source): median 
 ## Findings
 
 - (a) Shot times: all 11 match pipe.py exactly, including the faultrehearsal 4.5 s shot that the old page asked at 5 and 6. The only difference is the last browser shot before 45 s (41.5, 44, 42.5): pyref.py cuts the clip at 45 s, so its last shot has no next start and gets no +0.5. Not a real difference.
-- (b) Pixel diff vs ffmpeg dropped on the one video with an old harvest (faultrehearsal-v4: 6.31 to 4.11, h-faultrehearsal-v1: 6.11 to 4.11). The yuvj420p (full range) faultrehearsal clips still differ most; the browser's YUV to RGB conversion for full range is outside the page's control. Others are 1.6 to 2.3 (old canvas composites on the videos harvested before: 2.9 to 3.1).
-- (c) Gate: never skips the reference's YES shot (gates there: 0.66, 0.72, 0.98, 0.84, 0.78, 0.98). On ciph it skips 6 title/slide shots before the app (saves looks). It does skip some shots after the true first-app time (late boardclerk shots, many faultrehearsal shots after 9.3 s); the reference stopped at an earlier YES on both, so the answers do not change, but a miss on the first app shot would not be rescued by those later shots. Ground truth (gt/ground-truth.json, gt/holdout-truth.json) was read only for this check.
+- (b) Pixel diff vs ffmpeg dropped on all six videos harvested before the change (for example faultrehearsal-v4 6.31 to 4.11, h-motiontracker-v3 2.32 to 1.41). After the change it is 1.41 to 2.27 on eight videos, 4.11 on the two yuvj420p (full range) faultrehearsal clips, and 5.5 on h-taint-v1, the largest. h-taint-v1 is also the one holdout video the browser misses and the Python pipeline hits.
+- (c) Gate: never skips the reference's YES shot (gates there: 0.66, 0.72, 0.98, 0.84, 0.78, 0.98). On ciph it skips 6 title/slide shots before the app (saves looks). It does skip some shots after the true first-app time (late boardclerk shots, many faultrehearsal shots after 9.3 s); the reference stopped at an earlier YES on both, so the answers do not change, but a miss on the first app shot would not be rescued by those later shots. Hand-marked times were read only for this check.
 - rcv-yt (no app; scored against the Board Clerk screenshot): the gate skips every slide and the architecture diagram at 54 s and 60 s that both models called full UI. Only 30.5 s and 36.5 s (gate 0.58) reach the model, and the reference called both NO.
-- The 0.5 threshold was chosen after seeing results, including holdout frames; disclose it as such.
+- The 0.5 threshold was chosen after seeing results, including holdout frames; it is disclosed as such on /how and in the README.
 
 ### (a) Shot sample times, first 45 s, browser vs pipe.py
 

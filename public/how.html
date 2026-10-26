@@ -7,38 +7,39 @@
 <ol>
 <li>Your browser plays the video locally and takes a 32 by 18 pixel color snapshot twice a second, for the first 3 minutes.</li>
 <li>It splits the video into shots: a new shot starts when a snapshot differs from the previous one by more than 6 percent on average, and every 6 seconds inside a long shot, to catch slow fades and titles over a dimmed app. Black or nearly blank frames are skipped, and a shot that looks almost the same as one already checked reuses that answer.</li>
-<li>For each shot, in order, it builds one 1024 by 288 picture: your screenshot on the left, a frame 0.5 seconds into the shot on the right. Only that picture is sent.</li>
-<li>Before anything is sent, your browser compares the color mix of the two halves. If the frame shares less than half of its colors with your screenshot (a slide or diagram in a different palette), the shot counts as "not the app" with no model call. This threshold was picked after looking at the benchmark results, holdout videos included.</li>
+<li>For each shot, in order, it builds one 1024 by 288 picture: your screenshot on the left, a frame 0.5 seconds into the shot on the right. Only that picture is ever sent.</li>
+<li>Before it is sent, your browser compares the color mix of the two halves. If the frame shares less than half of its colors with your screenshot (a slide or diagram in a different palette), the shot counts as "not the app" with no model call. This threshold was picked after looking at the benchmark results, holdout videos included.</li>
 <li>The server asks Llama 4 Scout to describe the right half: how much of it is a software screen, and whether a large headline sits on top. If most or all of it is software and there is no headline, Mistral Small 3.1 is asked the same question to confirm. The model describes; the rule decides.</li>
 <li>At the first confirmed shot, your browser steps through every frame of the video at its own frame rate (measured when the video loads, then snapped to the nearest standard rate such as 23.976, 25, 29.97 or 60) between the last "not yet" snapshot and the first "app" snapshot, and picks the first frame that looks more like the app than what came before. No model calls happen in this step.</li>
 </ol>
 <h2>Accuracy</h2>
 <p id="bench-note">Hit means within 1.0 second of a frame marked by hand. The table below comes from the browser benchmark (bench/run.mjs), which ran this page in Chrome on every video: 3 of 4 holdout videos, 5 of 6 dev videos, and no time returned for the video with no app.</p>
 <div id="bench-table"><table><thead><tr><th>Video</th><th>Set</th><th>Found</th><th>Marked by hand</th><th>Result</th></tr></thead><tbody>
-<tr><td>h-<wbr>boardclerk-<wbr>v04</td><td>holdout</td><td>0.00</td><td>0.00</td><td class="hit">hit</td></tr>
-<tr><td>h-<wbr>motiontracker-<wbr>v3</td><td>holdout</td><td>0.00</td><td>0.00</td><td class="hit">hit</td></tr>
-<tr><td>h-<wbr>taint-<wbr>v1</td><td>holdout</td><td>26.63</td><td>18.33</td><td class="miss">miss: the second model did not confirm the app shot at 18.5 s, so the answer landed at a later shot</td></tr>
-<tr><td>h-<wbr>faultrehearsal-<wbr>v1</td><td>holdout</td><td>9.27</td><td>9.27</td><td class="hit">hit</td></tr>
-<tr><td>ciph</td><td>dev</td><td>12.27</td><td>12.27</td><td class="hit">hit</td></tr>
-<tr><td>faultrehearsal-<wbr>v4</td><td>dev</td><td>9.27</td><td>9.33</td><td class="hit">hit</td></tr>
-<tr><td>graphhacks-<wbr>yt</td><td>dev</td><td>15.97</td><td>16.20</td><td class="hit">hit</td></tr>
-<tr><td>motiontracker-<wbr>v1</td><td>dev</td><td>13.63</td><td>13.62</td><td class="hit">hit</td></tr>
-<tr><td>boardclerk-<wbr>v06</td><td>dev</td><td>0.00</td><td>0.00</td><td class="hit">hit</td></tr>
-<tr><td>motiontracker-<wbr>v5</td><td>dev</td><td>5.30</td><td>0.00</td><td class="miss">miss: a big caption over the app reads as a headline</td></tr>
-<tr><td>rcv-<wbr>yt</td><td>no app</td><td>none</td><td>none</td><td class="hit">hit: no false positive: the color check skipped 14 of 16 shots</td></tr>
+<tr><td>h-<wbr>boardclerk-<wbr>v04<span class="set-tag">holdout</span></td><td>holdout</td><td>0.00</td><td>0.00</td><td class="hit">hit</td></tr>
+<tr><td>h-<wbr>motiontracker-<wbr>v3<span class="set-tag">holdout</span></td><td>holdout</td><td>0.00</td><td>0.00</td><td class="hit">hit</td></tr>
+<tr><td>h-<wbr>taint-<wbr>v1<span class="set-tag">holdout</span></td><td>holdout</td><td>26.63</td><td>18.33</td><td class="miss">miss: the second model did not confirm the app shot at 18.5 s, so the answer landed at a later shot</td></tr>
+<tr><td>h-<wbr>faultrehearsal-<wbr>v1<span class="set-tag">holdout</span></td><td>holdout</td><td>9.27</td><td>9.27</td><td class="hit">hit</td></tr>
+<tr><td>ciph<span class="set-tag">dev</span></td><td>dev</td><td>12.27</td><td>12.27</td><td class="hit">hit</td></tr>
+<tr><td>faultrehearsal-<wbr>v4<span class="set-tag">dev</span></td><td>dev</td><td>9.27</td><td>9.33</td><td class="hit">hit</td></tr>
+<tr><td>graphhacks-<wbr>yt<span class="set-tag">dev</span></td><td>dev</td><td>15.97</td><td>16.20</td><td class="hit">hit</td></tr>
+<tr><td>motiontracker-<wbr>v1<span class="set-tag">dev</span></td><td>dev</td><td>13.63</td><td>13.62</td><td class="hit">hit</td></tr>
+<tr><td>boardclerk-<wbr>v06<span class="set-tag">dev</span></td><td>dev</td><td>0.00</td><td>0.00</td><td class="hit">hit</td></tr>
+<tr><td>motiontracker-<wbr>v5<span class="set-tag">dev</span></td><td>dev</td><td>5.30</td><td>0.00</td><td class="miss">miss: a big caption over the app reads as a headline</td></tr>
+<tr><td>rcv-<wbr>yt<span class="set-tag">no app</span></td><td>no app</td><td>none</td><td>none</td><td class="hit">hit: no time returned; the color check skipped 13 of 16 shots, with a threshold set after this video's earlier false positive</td></tr>
 </tbody></table><p class="label">Browser run 2026-10-26, commit 91a808b.</p></div>
-<p>Read these numbers with care. Eleven videos is a small test. The holdout videos are no longer unseen: an earlier browser run on the same day scored 1 of 4 holdout, 4 of 6 dev and a false positive on rcv-yt, and those misses were studied to find the two bugs fixed here (snapshots taken at slightly different moments than the reference pipeline, and pictures resized and compressed differently). The color check threshold was also chosen after seeing those results. The reference pipeline in Python scored 4 of 4 holdout, 5 of 6 dev and one false positive on rcv-yt. Full-range videos (the faultrehearsal clips) still differ the most from the reference pictures.</p>
+<p>Read these numbers with care. Eleven videos is a small test. The holdout videos are no longer unseen: an earlier browser run on the same day scored 1 of 4 holdout, 4 of 6 dev and a false positive on rcv-yt, and those misses were studied to find the two bugs fixed here (snapshots taken at slightly different moments than the reference pipeline, and pictures resized and compressed differently). The color check threshold was also chosen after seeing those results. The reference pipeline in Python scored 4 of 4 holdout, 5 of 6 dev and one false positive on rcv-yt. h-taint-v1, the one holdout video the browser misses and the Python pipeline hits, has the largest remaining picture difference from the reference.</p>
 <h2>Limits</h2>
 <ul>
 <li>Only the first 3 minutes are scanned.</li>
-<li>A large caption over the app counts as a title, so the answer can land late (motiontracker-v5).</li>
-<li>The second model can turn down a real app shot, so the answer can land at a later shot (h-taint-v1).</li>
+<li>A large caption over the app counts as a title, so the answer can land late (<span class="nw">motiontracker-v5</span>).</li>
+<li>The second model can turn down a real app shot, so the answer can land at a later shot (<span class="nw">h-taint-v1</span>).</li>
 <li>A video with no app can still return a time if one of its shots shares your screenshot's colors. Check the frame before you cut.</li>
+<li>The color check can also skip a real app shot that looks different from your screenshot, such as another screen of the app or dark mode against light. Use a screenshot of the first screen the video shows.</li>
 <li>Exports assume the file starts at timecode 00:00:00:00, which is true for screen recordings and most exports.</li>
 <li>Import into Resolve, Premiere and Final Cut has not been tested yet.</li>
 </ul>
 <h2>Cost</h2>
-<p>About 25 neurons per Llama look and 45 per Mistral look on the Cloudflare Workers AI free allowance, which this site shares with another project. Every model attempt is counted, including ones that fail. A picture the server has already answered is answered again from a cache at no cost. Shots turned away by the color check cost nothing. The site caps itself at 6,000 neurons a day or less, 40 model looks per visitor per day and 25 per video; cached answers do not count toward the 40. When a cap is hit, the page says so and you pick the shot yourself; the exact frame is still found on your computer.</p>
+<p>In the benchmark, about 24 neurons per Llama look and 20 per Mistral look on the Cloudflare Workers AI free allowance, which this site shares with another project. Every model attempt is counted, including ones that fail. A picture the server has already answered is answered again from a cache at no cost. Shots turned away by the color check cost nothing. The site caps itself at 6,000 neurons a day or less, 40 model looks per visitor per day and 25 per video; cached answers do not count toward the 40. When a cap is hit, the page says so and you pick the shot yourself; the exact frame is still found on your computer.</p>
 <script type="module">
 // Refreshes the table from the latest published bench.json.
 fetch("/data/bench.json").then(r => r.ok ? r.json() : null).then(d => {
@@ -52,7 +53,8 @@ fetch("/data/bench.json").then(r => r.ok ? r.json() : null).then(d => {
     const name = cell("td", "");
     String(x.id).split("-").forEach((part, i) => { if (i) name.append("-", document.createElement("wbr")); name.append(part); });
     tr.appendChild(name);
-    tr.appendChild(cell("td", String(x.set)));
+    tr.appendChild(cell("td", x.set === "rcv" ? "no app" : String(x.set)));
+    name.appendChild(cell("span", x.set === "rcv" ? "no app" : String(x.set), "set-tag"));
     tr.appendChild(cell("td", x.answer === null ? "none" : Number(x.answer).toFixed(2)));
     tr.appendChild(cell("td", x.truth === null ? "none" : Number(x.truth).toFixed(2)));
     tr.appendChild(cell("td", (x.hit ? "hit" : "miss") + (x.note ? ": " + x.note : ""), x.hit ? "hit" : "miss"));
@@ -61,7 +63,9 @@ fetch("/data/bench.json").then(r => r.ok ? r.json() : null).then(d => {
   table.appendChild(body);
   const box = document.getElementById("bench-table");
   box.replaceChildren(table, cell("p", "Browser run " + d.date + ", commit " + d.commit + ".", "label"));
-  document.getElementById("bench-note").textContent = "Hit means within 1.0 second of a frame marked by hand. The table below comes from the browser benchmark (bench/run.mjs), which ran this page in Chrome on every video.";
+  const of = s => { const rs = d.rows.filter(x => x.set === s); return rs.filter(x => x.hit).length + " of " + rs.length; };
+  const noApp = d.rows.filter(x => x.set === "rcv");
+  document.getElementById("bench-note").textContent = "Hit means within 1.0 second of a frame marked by hand. The table below comes from the browser benchmark (bench/run.mjs), which ran this page in Chrome on every video: " + of("holdout") + " holdout videos, " + of("dev") + " dev videos" + (noApp.length ? ", and " + (noApp.every(x => x.hit) ? "no time returned for the video with no app" : "a false positive on the video with no app") : "") + ".";
 });
 </script>
 </main>

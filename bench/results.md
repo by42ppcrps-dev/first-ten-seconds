@@ -309,7 +309,7 @@ rcv: 0 of 1 hit
 
 ## Combined result, Oct 26 2026 (commit f001ffd)
 
-The full run stopped at the per-visitor limit of 40 looks after graphhacks-yt (cached replays count as looks). The last four videos were run again on a fresh local server, one at a time. This table merges both, and it is what public/data/bench.json holds.
+The full run stopped at the per-visitor limit of 40 looks after graphhacks-yt (cached replays count as looks). Correction: cached answers never counted; the 40 were real model looks. The last four videos were run again on a fresh local server, one at a time. This table merges both, and it is what public/data/bench.json holds.
 
 | video | set | answer s | truth s | error s | hit (1.0 s) | neurons |
 |---|---|---|---|---|---|---|

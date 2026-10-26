@@ -130,8 +130,8 @@ async function run() {
     const reached = result.verdicts.filter((x) => !x.skipped || x.skipped === "unlike_ref").length;
     const unlike = result.verdicts.filter((x) => x.skipped === "unlike_ref").length, n = state.shots.length;
     if (unlike && unlike * 2 > reached) {
-      const which = unlike === reached ? `None of the ${n} shots looked` : `${unlike} of the ${n} shots did not look`;
-      setStatus(`${which} enough like your screenshot to ask about. If the app is there, click its first shot.`, "err");
+      const which = unlike === reached ? (n === 1 ? "The one shot did not look" : `None of the ${n} shots looked`) : `${unlike} of the ${n} shots did not look`;
+      setStatus(`${which} enough like your screenshot to ask about. If the app is there, click its first shot, or try a screenshot of the first app screen.`, "err");
     } else setStatus("No shot in the first 3:00 showed the app full screen. If it is there, click its first shot.", "err");
   } else {
     state.mode = "manual";

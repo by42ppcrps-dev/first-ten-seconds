@@ -2,7 +2,7 @@
 
 Offline only: no model calls. The page (this commit) runs in headless Chrome from `python3 -m http.server 8797` with `/api/look` answered locally (always NO, so every shot up to the 25-look or 3:00 limit is composited). Harness: `bench/parity.mjs`. Analysis: an offline script outside this repo (ffmpeg composites built with the reference pipeline's command, `-q:v 4`); reference shot times come from the same pipeline (first 45 s).
 
-**Status: all 11 videos analyzed.**
+**Status: all 11 videos analyzed.** The gate later changed to score only each half's content box (0a5aa87). Every bench screenshot and video here is 16:9, so every gate value below is unchanged (`test/gate.test.js` checks that 16:9 scores are identical).
 
 Changes measured: grid sample i shows frame ceil((i + 0.5) / 2 * rate) - 1 (ffmpeg fps=2), the composite shows the first frame starting at or after t (ffmpeg -ss), cubic resample (Keys a = -0.5, widened on downscale) from native pixels, JPEG 0.92, and the local color gate (skip under 0.5).
 

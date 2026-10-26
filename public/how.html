@@ -34,12 +34,12 @@
 <li>A large caption over the app counts as a title, so the answer can land late (<span class="nw">motiontracker-v5</span>).</li>
 <li>The second model can turn down a real app shot, so the answer can land at a later shot (<span class="nw">h-taint-v1</span>).</li>
 <li>A video with no app can still return a time if one of its shots shares your screenshot's colors. Check the frame before you cut.</li>
-<li>The color check can also skip a real app shot that looks different from your screenshot, such as another screen of the app or dark mode against light. Use a screenshot of the first screen the video shows.</li>
+<li>The color check can also skip a real app shot that looks different from your screenshot, such as another screen of the app or dark mode against light. Use a screenshot of the first app screen in the video.</li>
 <li>Exports assume the file starts at timecode 00:00:00:00, which is true for screen recordings and most exports.</li>
 <li>Import into Resolve, Premiere and Final Cut has not been tested yet.</li>
 </ul>
 <h2>Cost</h2>
-<p>In the benchmark, about 24 neurons per Llama look and 20 per Mistral look on the Cloudflare Workers AI free allowance, which this site shares with another project. Every model attempt is counted, including ones that fail. A picture the server has already answered is answered again from a cache at no cost. Shots turned away by the color check cost nothing. The site caps itself at 6,000 neurons a day or less, 40 model looks per visitor per day and 25 per video; cached answers do not count toward the 40. When a cap is hit, the page says so and you pick the shot yourself; the exact frame is still found on your computer.</p>
+<p>In the benchmark, a shot cost about 24 neurons when only Llama was asked and about 44 when Mistral confirmed, from the Cloudflare Workers AI free allowance, which this site shares with another project. Every model attempt is counted, including ones that fail. A picture the server has already answered is answered again from a cache at no cost. Shots turned away by the color check cost nothing. The site caps itself at 6,000 neurons a day or less, 40 model looks per visitor per day and 25 per video; cached answers do not count toward the 40. When a cap is hit, the page says so and you pick the shot yourself; the exact frame is still found on your computer.</p>
 <script type="module">
 // Refreshes the table from the latest published bench.json.
 fetch("/data/bench.json").then(r => r.ok ? r.json() : null).then(d => {

@@ -83,7 +83,7 @@ footer { border-top: 1px solid var(--rule); margin-top: 48px; padding: 16px 0 32
 .nw { white-space: nowrap; }
 #bench-table td { vertical-align: top; }
 /* min-width keeps names on one line on desktop; the Result column takes the wrapping instead. */
-#bench-table td:first-child { overflow-wrap: anywhere; min-width: calc(19ch + 16px); }
+#bench-table td:first-child { overflow-wrap: anywhere; min-width: calc(20ch + 16px); }
 #bench-table td:nth-child(2), #bench-table td:nth-child(3), #bench-table td:nth-child(4) { white-space: nowrap; }
 @media (max-width: 600px) {
   #bench-table th:nth-child(2), #bench-table td:nth-child(2) { display: none; }

@@ -2,7 +2,7 @@
 
 Find the first frame where your app is on screen in a demo video, then export the cut to your editor.
 
-Live: https://fts.trylumegrid.com (placeholder, not deployed yet)
+Live: https://fts.trylumegrid.com
 
 ## What it does
 Drop a demo video and one screenshot of your app. The page reports the time and timecode of the first frame where the app fills the screen, and exports an edit that starts the timeline there, with a marker on that frame:

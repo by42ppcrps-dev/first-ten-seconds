@@ -1,6 +1,7 @@
 // Browser-only: the local <video>, frame grabs, composites and the frame-exact refine.
 import { gridFromRGBA, meanAbsDiff } from "../engine/grid.js";
 import { refineFrames, frameStart } from "../engine/detect.js";
+import { gridFrame, frameMid } from "../engine/frames.js";
 
 const GRAB_W = 256, GRAB_H = 144; // 8x the 32x18 grid, then area-averaged
 const EPS = 0.001;
@@ -35,7 +36,11 @@ export function seek(v, t) {
 }
 
 export async function gridAt(v, t) {
-  await seek(v, t + EPS);
+  return gridAtSeek(v, t + EPS);
+}
+
+async function gridAtSeek(v, seekT) {
+  await seek(v, seekT);
   grabCtx.drawImage(v, 0, 0, GRAB_W, GRAB_H);
   return gridFromRGBA(grabCtx.getImageData(0, 0, GRAB_W, GRAB_H).data, GRAB_W, GRAB_H);
 }
@@ -62,13 +67,13 @@ export function estimateFps(v) {
 }
 
 // 2 fps grids over the first min(duration, cap) seconds, with a small thumbnail per sample.
-export async function sample(v, { fps = 2, cap = 180, onProgress = () => {}, cancelled = () => false } = {}) {
+// Sample i is labeled i / fps but shows the frame ffmpeg fps=2 keeps for it (rate is the video's own rate).
+export async function sample(v, { fps = 2, cap = 180, rate, onProgress = () => {}, cancelled = () => false } = {}) {
   const end = Math.min(v.duration, cap);
   const grids = [], thumbs = [];
   for (let i = 0; i / fps < end - 0.01; i++) {
     if (cancelled()) break;
-    const t = i / fps;
-    grids.push(await gridAt(v, t));
+    grids.push(await gridAtSeek(v, frameMid(gridFrame(i, fps, rate), rate)));
     thumbCtx.drawImage(v, 0, 0, 128, 72);
     thumbs.push(thumbCanvas.toDataURL("image/jpeg", 0.6));
     onProgress(i, Math.ceil(end * fps));

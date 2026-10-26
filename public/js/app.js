@@ -92,7 +92,7 @@ async function run() {
   $("fps").value = rateInfo(state.fps).label;
   $("meta").textContent = `${file.name}  ${v.videoWidth}x${v.videoHeight}  ${display(v.duration)}`;
   state.mode = "scanning";
-  const { grids, thumbs } = await sample(v, { cancelled: () => !live(), onProgress: (i, n) => { if (i % 10 === 0) setStatus(`Scanning ${display(i / 2)} of ${display(n / 2)}`); } });
+  const { grids, thumbs } = await sample(v, { rate: rateInfo(fps), cancelled: () => !live(), onProgress: (i, n) => { if (i % 10 === 0) setStatus(`Scanning ${display(i / 2)} of ${display(n / 2)}`); } });
   if (!live()) return;
   state.thumbs = thumbs;
   state.shots = buildShots(grids);

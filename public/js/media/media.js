@@ -1,7 +1,8 @@
 // Browser-only: the local <video>, frame grabs, composites and the frame-exact refine.
 import { gridFromRGBA, meanAbsDiff } from "../engine/grid.js";
 import { refineFrames, frameStart } from "../engine/detect.js";
-import { gridFrame, frameMid } from "../engine/frames.js";
+import { gridFrame, frameAtOrAfter, frameMid } from "../engine/frames.js";
+import { compositePixels } from "../engine/resample.js";
 
 const GRAB_W = 256, GRAB_H = 144; // 8x the 32x18 grid, then area-averaged
 const EPS = 0.001;
@@ -81,23 +82,29 @@ export async function sample(v, { fps = 2, cap = 180, rate, onProgress = () => {
   return { grids, thumbs };
 }
 
-function contain(ctx, src, sw, sh, x, y, w, h) {
-  const s = Math.min(w / sw, h / sh);
-  const dw = Math.round(sw * s), dh = Math.round(sh * s);
-  ctx.drawImage(src, x + Math.floor((w - dw) / 2), y + Math.floor((h - dh) / 2), dw, dh);
+// The whole image at native size as RGBA.
+function pixelsOf(src, w, h) {
+  const c = document.createElement("canvas");
+  c.width = w; c.height = h;
+  const ctx = c.getContext("2d", { willReadFrequently: true });
+  ctx.drawImage(src, 0, 0, w, h);
+  return { data: ctx.getImageData(0, 0, w, h).data, width: w, height: h };
 }
 
-// 1024x288: reference letterboxed on the left, the frame at t on the right.
-export async function composite(v, t, ref) {
-  await seek(v, t + EPS);
+const refCache = new WeakMap();
+
+// 1024x288: reference letterboxed on the left, the frame ffmpeg -ss t would show on the right.
+// Cubic resample from native pixels, like the reference pipeline's ffmpeg composite. ms is the build time.
+export async function composite(v, t, ref, rate) {
+  await seek(v, frameMid(frameAtOrAfter(t, rate), rate));
+  const t0 = performance.now();
+  if (!refCache.has(ref)) refCache.set(ref, pixelsOf(ref, ref.width, ref.height));
+  const px = compositePixels(refCache.get(ref), pixelsOf(v, v.videoWidth, v.videoHeight));
   const c = document.createElement("canvas");
-  c.width = 1024; c.height = 288;
-  const ctx = c.getContext("2d");
-  ctx.fillStyle = "#000"; ctx.fillRect(0, 0, 1024, 288);
-  ctx.imageSmoothingQuality = "high";
-  contain(ctx, ref, ref.width, ref.height, 0, 0, 512, 288);
-  contain(ctx, v, v.videoWidth, v.videoHeight, 512, 0, 512, 288);
-  return c.toDataURL("image/jpeg", 0.85);
+  c.width = px.width; c.height = px.height;
+  c.getContext("2d").putImageData(new ImageData(px.data, px.width, px.height), 0, 0);
+  const image = c.toDataURL("image/jpeg", 0.92);
+  return { image, ms: Math.round(performance.now() - t0) };
 }
 
 // Step through every real frame (at the video's rate) from the last NO time to the YES time.

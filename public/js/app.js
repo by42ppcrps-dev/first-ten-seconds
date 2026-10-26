@@ -8,7 +8,7 @@ import { renderTimeline } from "./timeline.js";
 
 const $ = (id) => document.getElementById(id);
 const BENCH = new URLSearchParams(location.search).has("bench");
-const state = { file: null, video: null, ref: null, shots: [], thumbs: [], answer: null, source: null, fps: 30, drop: true, mode: "idle", looks: 0, neurons: 0, run: 0 };
+const state = { file: null, video: null, ref: null, shots: [], thumbs: [], answer: null, source: null, fps: 30, drop: true, mode: "idle", looks: 0, neurons: 0, compositeMs: [], run: 0 };
 
 function setStatus(text, kind = "") {
   const s = $("status");
@@ -64,7 +64,7 @@ async function pick(index) {
 
 function publish(extra) {
   if (!BENCH) return;
-  window.__ftsResult = { answer: state.answer, looks: state.looks, neurons: state.neurons, fps: state.fps, shots: state.shots.length, verdicts: state.verdicts || [], ...extra };
+  window.__ftsResult = { answer: state.answer, looks: state.looks, neurons: state.neurons, compositeMs: state.compositeMs, fps: state.fps, shots: state.shots.length, shotTimes: state.shots.map((s) => s.t), verdicts: state.verdicts || [], ...extra };
 }
 
 // A new video or screenshot cancels the scan in progress: every await checks the run id.
@@ -72,7 +72,7 @@ async function run() {
   if (!state.file || !state.ref) return;
   const id = ++state.run, file = state.file, live = () => id === state.run;
   const t0 = performance.now();
-  state.answer = null; state.shots = []; state.thumbs = []; state.looks = 0; state.neurons = 0; state.verdicts = [];
+  state.answer = null; state.shots = []; state.thumbs = []; state.looks = 0; state.neurons = 0; state.compositeMs = []; state.verdicts = [];
   state.mode = "loading"; readout();
   if (state.video) { URL.revokeObjectURL(state.video.src); state.video.remove(); }
   try {
@@ -104,9 +104,10 @@ async function run() {
     look: async (shot) => {
       if (!live()) throw new LookError("cancelled");
       setStatus(`Looking at shot ${shot.index + 1} of ${state.shots.length} at ${display(shot.t)}`);
-      const img = await composite(v, shot.t, state.ref);
+      const c = await composite(v, shot.t, state.ref, rateInfo(state.fps));
+      state.compositeMs.push(c.ms);
       state.looks++;
-      const r = await look(img, videoId);
+      const r = await look(c.image, videoId);
       if (!live()) throw new LookError("cancelled");
       state.neurons += r.neurons_used_estimate || 0;
       return r;

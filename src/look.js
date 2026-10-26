@@ -1,6 +1,6 @@
 import { buildInput, LLAMA, MISTRAL, PROMPT } from "./prompt.js";
 import { parseDescription, isCandidate } from "../public/js/engine/parse.js";
-import { estimateNeurons, dailyCap, RESERVE } from "./budget-core.js";
+import { estimateNeurons, dailyCap, visitorCap, RESERVE } from "./budget-core.js";
 
 const MAX_BODY = 300 * 1024;
 const TIMEOUT_MS = 30000;
@@ -139,7 +139,7 @@ export async function handleLook(request, env) {
   // FTS_DAILY_CAP=0 turns automatic finding off for the day without touching the counter.
   const cap = dailyCap(env);
   if (cap === 0) return json(429, { error: "daily_cap", resets_at: nextResetIso() });
-  const r = await budget.reserve(visitor, video, RESERVE, cap);
+  const r = await budget.reserve(visitor, video, RESERVE, cap, visitorCap(env));
   if (!r.ok) return json(429, r.error === "daily_cap" ? { error: r.error, resets_at: nextResetIso() } : { error: r.error });
 
   let spent = 0, llama = null, mistral = null;

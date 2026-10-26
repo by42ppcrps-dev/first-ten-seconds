@@ -34,12 +34,22 @@ export function dailyCap(env) {
   return Math.max(0, Math.min(DAILY_NEURON_CAP, Math.floor(n)));
 }
 
+// Looks per visitor per day. FTS_VISITOR_CAP is honored only on a local dev server (DEV=1), so one full
+// bench run from one machine is not stopped by the cap. Production always uses LOOKS_PER_VISITOR_DAY.
+export function visitorCap(env) {
+  if (!env || String(env.DEV) !== "1") return LOOKS_PER_VISITOR_DAY;
+  const raw = env.FTS_VISITOR_CAP;
+  if (raw === undefined || raw === null || String(raw).trim() === "") return LOOKS_PER_VISITOR_DAY;
+  const n = Number(raw);
+  return Number.isFinite(n) && n >= 0 ? Math.floor(n) : LOOKS_PER_VISITOR_DAY;
+}
+
 // store: { get(key) -> number, set(key, number) }
-export function reserve(store, visitor, video, amount = RESERVE, cap = DAILY_NEURON_CAP) {
+export function reserve(store, visitor, video, amount = RESERVE, cap = DAILY_NEURON_CAP, perVisitor = LOOKS_PER_VISITOR_DAY) {
   const used = store.get("neurons");
   if (used + amount > cap) return { ok: false, error: "daily_cap" };
   const v = store.get("ip:" + visitor);
-  if (v >= LOOKS_PER_VISITOR_DAY) return { ok: false, error: "visitor_cap" };
+  if (v >= perVisitor) return { ok: false, error: "visitor_cap" };
   const pv = store.get("vid:" + visitor + ":" + video);
   if (pv >= LOOKS_PER_VIDEO) return { ok: false, error: "video_cap" };
   store.set("neurons", used + amount);

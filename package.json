@@ -8,6 +8,7 @@
   "scripts": {
     "dev": "wrangler dev --var DEV:1 --var AI_DISABLED:0",
     "dev:off": "wrangler dev --var AI_DISABLED:1 --var DEV:1",
+    "dev:bench": "wrangler dev --var DEV:1 --var AI_DISABLED:0 --var FTS_VISITOR_CAP:1000",
     "test": "node --test test/*.test.js && node scripts/check-copy.mjs",
     "bench": "node bench/run.mjs",
     "deploy": "wrangler deploy"

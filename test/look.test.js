@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { handleLook, jpegSize } from "../src/look.js";
-import { reserve, settle, countHit, memoryStore, memoryCache, estimateNeurons, dailyCap, DAILY_NEURON_CAP, LOOKS_PER_VIDEO, RESERVE, CACHED_LOOKS_PER_VISITOR_DAY } from "../src/budget-core.js";
+import { reserve, settle, countHit, memoryStore, memoryCache, estimateNeurons, dailyCap, visitorCap, DAILY_NEURON_CAP, LOOKS_PER_VISITOR_DAY, LOOKS_PER_VIDEO, RESERVE, CACHED_LOOKS_PER_VISITOR_DAY } from "../src/budget-core.js";
 
 // Minimal JPEG header with a SOF0 of the given size.
 function fakeJpeg(w, h) {
@@ -23,6 +23,7 @@ function fakeEnv(answers, opts = {}) {
     IP_SALT: opts.salt,
     AI_DISABLED: opts.off ? "1" : "0",
     FTS_DAILY_CAP: opts.cap,
+    FTS_VISITOR_CAP: opts.visitorCap,
     AI: {
       async run(model, input) {
         calls.push(model);
@@ -37,7 +38,7 @@ function fakeEnv(answers, opts = {}) {
       get: (name) => name === "cache"
         ? { cacheGet: cache.get, cachePut: cache.put }
         : {
-            reserve: async (v, vid, amt, cap) => reserve(store, v, vid, amt, cap),
+            reserve: async (v, vid, amt, cap, per) => reserve(store, v, vid, amt, cap, per),
             settle: async (d) => settle(store, d),
             countHit: async (v) => countHit(store, v),
           },
@@ -202,4 +203,40 @@ test("budget caps", () => {
   for (let i = 0; i < 15; i++) assert.ok(reserve(s2, "a", "w" + i, 1).ok);
   assert.equal(reserve(s2, "a", "x", 1).error, "visitor_cap");
   assert.equal(estimateNeurons("@cf/meta/llama-4-scout-17b-16e-instruct", null), 25);
+});
+
+// The same fake JPEG with extra bytes after it: a different picture to the cache, still 1024x288.
+const nth = (i) => "data:image/jpeg;base64," + Buffer.concat([Buffer.from(fakeJpeg(1024, 288).slice(23), "base64"), Buffer.from(String(i))]).toString("base64");
+
+test("40 real looks reach the visitor cap; cached replays are still answered", async () => {
+  const env = fakeEnv({ llama: APP, mistral: APP });
+  for (let i = 0; i < LOOKS_PER_VISITOR_DAY; i++) {
+    const r = await handleLook(req({ image: nth(i), video: "bench-video-" + (i % 2) }), env);
+    assert.equal(r.status, 200, "look " + i);
+  }
+  const over = await handleLook(req({ image: nth(999), video: "bench-video-0" }), env);
+  assert.equal(over.status, 429);
+  assert.equal((await over.json()).error, "visitor_cap");
+  const calls = env.calls.length;
+  for (let i = 0; i < LOOKS_PER_VISITOR_DAY; i++) {
+    const r = await handleLook(req({ image: nth(i), video: "bench-video-9" }), env);
+    assert.equal(r.status, 200, "replay " + i);
+    assert.equal((await r.json()).cached, true);
+  }
+  assert.equal(env.calls.length, calls);
+});
+
+test("FTS_VISITOR_CAP: honored only with DEV=1, production stays at 40", async () => {
+  assert.equal(visitorCap({ DEV: "1", FTS_VISITOR_CAP: "1000" }), 1000);
+  assert.equal(visitorCap({ DEV: "1" }), LOOKS_PER_VISITOR_DAY);
+  assert.equal(visitorCap({ DEV: "1", FTS_VISITOR_CAP: "lots" }), LOOKS_PER_VISITOR_DAY);
+  assert.equal(visitorCap({ DEV: "0", FTS_VISITOR_CAP: "1000" }), LOOKS_PER_VISITOR_DAY);
+  assert.equal(visitorCap({ FTS_VISITOR_CAP: "1000" }), LOOKS_PER_VISITOR_DAY);
+  const env = fakeEnv({ llama: APP, mistral: APP }, { visitorCap: "1000" });
+  for (let i = 0; i < LOOKS_PER_VISITOR_DAY + 5; i++) {
+    assert.equal((await handleLook(req({ image: nth(i), video: "bench-video-" + (i % 3) }), env)).status, 200, "look " + i);
+  }
+  const prod = fakeEnv({ llama: APP, mistral: APP }, { prod: true, salt: "s", visitorCap: "1000" });
+  for (let i = 0; i < LOOKS_PER_VISITOR_DAY; i++) await handleLook(req({ image: nth(i), video: "bench-video-" + (i % 2) }, "http://localhost:8787"), prod);
+  assert.equal((await (await handleLook(req({ image: nth(999), video: "bench-video-0" }, "http://localhost:8787"), prod)).json()).error, "visitor_cap");
 });

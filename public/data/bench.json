@@ -1,0 +1,94 @@
+{
+ "date": "2026-10-26",
+ "commit": "f001ffd",
+ "rows": [
+  {
+   "id": "h-boardclerk-v04",
+   "set": "holdout",
+   "answer": 0.2,
+   "truth": 0,
+   "hit": true,
+   "note": ""
+  },
+  {
+   "id": "h-motiontracker-v3",
+   "set": "holdout",
+   "answer": 12.333333333333334,
+   "truth": 0,
+   "hit": false,
+   "note": ""
+  },
+  {
+   "id": "h-taint-v1",
+   "set": "holdout",
+   "answer": 22.1,
+   "truth": 18.33,
+   "hit": false,
+   "note": ""
+  },
+  {
+   "id": "h-faultrehearsal-v1",
+   "set": "holdout",
+   "answer": 14.133333333333333,
+   "truth": 9.27,
+   "hit": false,
+   "note": ""
+  },
+  {
+   "id": "ciph",
+   "set": "dev",
+   "answer": 12.266666666666667,
+   "truth": 12.27,
+   "hit": true,
+   "note": ""
+  },
+  {
+   "id": "faultrehearsal-v4",
+   "set": "dev",
+   "answer": 14.633333333333333,
+   "truth": 9.33,
+   "hit": false,
+   "note": ""
+  },
+  {
+   "id": "graphhacks-yt",
+   "set": "dev",
+   "answer": 16.033333333333335,
+   "truth": 16.2,
+   "hit": true,
+   "note": ""
+  },
+  {
+   "id": "motiontracker-v1",
+   "set": "dev",
+   "answer": 13.633333333333333,
+   "truth": 13.62,
+   "hit": true,
+   "note": ""
+  },
+  {
+   "id": "boardclerk-v06",
+   "set": "dev",
+   "answer": 0,
+   "truth": 0,
+   "hit": true,
+   "note": ""
+  },
+  {
+   "id": "motiontracker-v5",
+   "set": "dev",
+   "answer": 5.3,
+   "truth": 0,
+   "hit": false,
+   "note": ""
+  },
+  {
+   "id": "rcv-yt",
+   "set": "rcv",
+   "answer": 53.5,
+   "truth": null,
+   "hit": false,
+   "note": "false positive: no app in this video"
+  }
+ ]
+}

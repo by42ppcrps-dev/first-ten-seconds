@@ -1,0 +1,1051 @@
+{
+ "date": "2026-10-26T07:00:29.107Z",
+ "commit": "f001ffd",
+ "base": "http://localhost:8788",
+ "frozen": "ground-truth.json: OK\nholdout-truth.json: OK\nrefs/boardclerk-v06__ref1.png: OK\nrefs/boardclerk-v06__ref2.png: OK\nrefs/ciph__ref1.png: OK\nrefs/ciph__ref2.png: OK\nrefs/faultrehearsal-v4__ref1.png: OK\nrefs/faultrehearsal-v4__ref2.png: OK\nrefs/graphhacks-yt__ref1.png: OK\nrefs/graphhacks-yt__ref2.png: OK\nrefs/h-boardclerk-v04__ref1.png: OK\nrefs/h-boardclerk-v04__ref2.png: OK\nrefs/h-faultrehearsal-v1__ref1.png: OK\nrefs/h-faultrehearsal-v1__ref2.png: OK\nrefs/h-motiontracker-v3__ref1.png: OK\nrefs/h-motiontracker-v3__ref2.png: OK\nrefs/h-taint-v1__ref1.png: OK\nrefs/h-taint-v1__ref2.png: OK\nrefs/motiontracker-v1__ref1.png: OK\nrefs/motiontracker-v1__ref2.png: OK\nrefs/motiontracker-v5__ref1.png: OK\nrefs/motiontracker-v5__ref2.png: OK\nvideos/boardclerk-v04.mp4: OK\nvideos/boardclerk-v06.mp4: OK\nvideos/ciph.mp4: OK\nvideos/faultrehearsal-v4.mp4: OK\nvideos/graphhacks-yt.mp4: OK\nvideos/h-boardclerk-v04.mp4: OK\nvideos/h-faultrehearsal-v1.mp4: OK\nvideos/h-motiontracker-v3.mp4: OK\nvideos/h-taint-v1.mp4: OK\nvideos/motiontracker-v1.mp4: OK\nvideos/motiontracker-v5.mp4: OK\nvideos/rcv-yt.mp4: OK\nvideos/ref-src-faultrehearsal-v1.mp4: OK",
+ "rows": [
+  {
+   "id": "h-boardclerk-v04",
+   "set": "holdout",
+   "ref": "h-boardclerk-v04__ref1.png",
+   "status": "found",
+   "error": null,
+   "answer": 0.2,
+   "looks": 2,
+   "calls": 3,
+   "neurons": 67.4,
+   "http_errors": 0,
+   "shots": 43,
+   "ms": 37300,
+   "verdicts": [
+    {
+     "shot": 0,
+     "t": 0,
+     "app": false,
+     "llama": {
+      "ui_share": "none",
+      "headline": false,
+      "photo": false
+     },
+     "mistral": null,
+     "neurons": 0,
+     "cached": true
+    },
+    {
+     "shot": 1,
+     "t": 1,
+     "app": true,
+     "llama": {
+      "ui_share": "most",
+      "headline": false,
+      "photo": false
+     },
+     "mistral": {
+      "ui_share": "part",
+      "headline": false,
+      "photo": true
+     },
+     "neurons": 0,
+     "cached": true
+    }
+   ],
+   "picked": null,
+   "cached": 2,
+   "held_by_hard_stop": 0,
+   "skipped": 0,
+   "truth": 0,
+   "error_s": 0.2,
+   "hit": true,
+   "note": ""
+  },
+  {
+   "id": "h-motiontracker-v3",
+   "set": "holdout",
+   "ref": "h-motiontracker-v3__ref1.png",
+   "status": "found",
+   "error": null,
+   "answer": 12.333333333333334,
+   "looks": 3,
+   "calls": 4,
+   "neurons": 91.1,
+   "http_errors": 0,
+   "shots": 13,
+   "ms": 26162,
+   "verdicts": [
+    {
+     "shot": 0,
+     "t": 0.5,
+     "app": false,
+     "llama": {
+      "ui_share": "all",
+      "headline": true,
+      "photo": false
+     },
+     "mistral": null,
+     "neurons": 0,
+     "cached": true
+    },
+    {
+     "shot": 1,
+     "t": 6.5,
+     "app": false,
+     "llama": {
+      "ui_share": "none",
+      "headline": false,
+      "photo": false
+     },
+     "mistral": null,
+     "neurons": 0,
+     "cached": true
+    },
+    {
+     "shot": 2,
+     "t": 12.5,
+     "app": true,
+     "llama": {
+      "ui_share": "all",
+      "headline": false,
+      "photo": false
+     },
+     "mistral": {
+      "ui_share": "most",
+      "headline": true,
+      "photo": false
+     },
+     "neurons": 0,
+     "cached": true
+    }
+   ],
+   "picked": null,
+   "cached": 3,
+   "held_by_hard_stop": 0,
+   "skipped": 0,
+   "truth": 0,
+   "error_s": 12.33,
+   "hit": false,
+   "note": ""
+  },
+  {
+   "id": "h-taint-v1",
+   "set": "holdout",
+   "ref": "h-taint-v1__ref1.png",
+   "status": "found",
+   "error": null,
+   "answer": 22.1,
+   "looks": 6,
+   "calls": 11,
+   "neurons": 243,
+   "http_errors": 0,
+   "shots": 18,
+   "ms": 35680,
+   "verdicts": [
+    {
+     "shot": 0,
+     "t": 0.5,
+     "app": false,
+     "llama": {
+      "ui_share": "most",
+      "headline": false,
+      "photo": false
+     },
+     "mistral": {
+      "ui_share": "none",
+      "headline": true,
+      "photo": false
+     },
+     "neurons": 0,
+     "cached": true
+    },
+    {
+     "shot": 1,
+     "t": 6.5,
+     "app": false,
+     "llama": {
+      "ui_share": "most",
+      "headline": false,
+      "photo": false
+     },
+     "mistral": {
+      "ui_share": "none",
+      "headline": true,
+      "photo": false
+     },
+     "neurons": 0,
+     "cached": true
+    },
+    {
+     "shot": 2,
+     "t": 12.5,
+     "app": false,
+     "llama": {
+      "ui_share": "all",
+      "headline": false,
+      "photo": false
+     },
+     "mistral": {
+      "ui_share": "none",
+      "headline": true,
+      "photo": false
+     },
+     "neurons": 0,
+     "cached": true
+    },
+    {
+     "shot": 3,
+     "t": 18,
+     "app": false,
+     "llama": {
+      "ui_share": "part",
+      "headline": true,
+      "photo": false
+     },
+     "mistral": null,
+     "neurons": 0,
+     "cached": true
+    },
+    {
+     "shot": 4,
+     "t": 19,
+     "app": false,
+     "llama": {
+      "ui_share": "all",
+      "headline": false,
+      "photo": false
+     },
+     "mistral": {
+      "ui_share": "none",
+      "headline": true,
+      "photo": false
+     },
+     "neurons": 0,
+     "cached": true
+    },
+    {
+     "shot": 5,
+     "t": 25,
+     "app": true,
+     "llama": {
+      "ui_share": "all",
+      "headline": false,
+      "photo": false
+     },
+     "mistral": {
+      "ui_share": "all",
+      "headline": false,
+      "photo": false
+     },
+     "neurons": 0,
+     "cached": true
+    }
+   ],
+   "picked": null,
+   "cached": 6,
+   "held_by_hard_stop": 0,
+   "skipped": 0,
+   "truth": 18.33,
+   "error_s": 3.77,
+   "hit": false,
+   "note": ""
+  },
+  {
+   "id": "h-faultrehearsal-v1",
+   "set": "holdout",
+   "ref": "h-faultrehearsal-v1__ref1.png",
+   "status": "found",
+   "error": null,
+   "answer": 14.133333333333333,
+   "looks": 6,
+   "calls": 7,
+   "neurons": 161.4,
+   "http_errors": 0,
+   "shots": 39,
+   "ms": 68213,
+   "verdicts": [
+    {
+     "shot": 0,
+     "t": 0.5,
+     "app": false,
+     "llama": {
+      "ui_share": "part",
+      "headline": true,
+      "photo": false
+     },
+     "mistral": null,
+     "neurons": 0,
+     "cached": true
+    },
+    {
+     "shot": 1,
+     "t": 5,
+     "app": false,
+     "llama": {
+      "ui_share": "most",
+      "headline": true,
+      "photo": false
+     },
+     "mistral": null,
+     "neurons": 0,
+     "cached": true
+    },
+    {
+     "shot": 2,
+     "t": 6,
+     "app": false,
+     "llama": {
+      "ui_share": "most",
+      "headline": true,
+      "photo": false
+     },
+     "mistral": null,
+     "neurons": 0,
+     "cached": true
+    },
+    {
+     "shot": 3,
+     "t": 9,
+     "app": false,
+     "llama": {
+      "ui_share": "most",
+      "headline": true,
+      "photo": false
+     },
+     "mistral": null,
+     "neurons": 0,
+     "cached": true
+    },
+    {
+     "shot": 4,
+     "t": 10,
+     "app": false,
+     "llama": {
+      "ui_share": "all",
+      "headline": true,
+      "photo": false
+     },
+     "mistral": null,
+     "neurons": 0,
+     "cached": true
+    },
+    {
+     "shot": 5,
+     "t": 16,
+     "app": true,
+     "llama": {
+      "ui_share": "all",
+      "headline": false,
+      "photo": false
+     },
+     "mistral": {
+      "ui_share": "all",
+      "headline": false,
+      "photo": false
+     },
+     "neurons": 0,
+     "cached": true
+    }
+   ],
+   "picked": null,
+   "cached": 6,
+   "held_by_hard_stop": 0,
+   "skipped": 0,
+   "truth": 9.27,
+   "error_s": 4.86,
+   "hit": false,
+   "note": ""
+  },
+  {
+   "id": "ciph",
+   "set": "dev",
+   "ref": "ciph__ref1.png",
+   "status": "found",
+   "error": null,
+   "answer": 12.266666666666667,
+   "looks": 10,
+   "calls": 11,
+   "neurons": 255.4,
+   "http_errors": 0,
+   "shots": 33,
+   "ms": 37698,
+   "verdicts": [
+    {
+     "shot": 0,
+     "t": 0.5,
+     "app": false,
+     "llama": {
+      "ui_share": "none",
+      "headline": true,
+      "photo": true
+     },
+     "mistral": null,
+     "neurons": 23.5,
+     "cached": false
+    },
+    {
+     "shot": 1,
+     "t": 3,
+     "app": false,
+     "llama": {
+      "ui_share": "none",
+      "headline": false,
+      "photo": false
+     },
+     "mistral": null,
+     "neurons": 23.5,
+     "cached": false
+    },
+    {
+     "shot": 2,
+     "t": 4,
+     "app": false,
+     "llama": {
+      "ui_share": "none",
+      "headline": true,
+      "photo": false
+     },
+     "mistral": null,
+     "neurons": 23.5,
+     "cached": false
+    },
+    {
+     "shot": 3,
+     "t": 6,
+     "app": false,
+     "llama": {
+      "ui_share": "none",
+      "headline": false,
+      "photo": true
+     },
+     "mistral": null,
+     "neurons": 23.5,
+     "cached": false
+    },
+    {
+     "shot": 4,
+     "t": 7,
+     "app": false,
+     "llama": {
+      "ui_share": "none",
+      "headline": false,
+      "photo": true
+     },
+     "mistral": null,
+     "neurons": 23.5,
+     "cached": false
+    },
+    {
+     "shot": 5,
+     "t": 8,
+     "app": false,
+     "llama": {
+      "ui_share": "none",
+      "headline": false,
+      "photo": true
+     },
+     "mistral": null,
+     "neurons": 23.5,
+     "cached": false
+    },
+    {
+     "shot": 6,
+     "t": 9.5,
+     "app": false,
+     "llama": {
+      "ui_share": "none",
+      "headline": false,
+      "photo": true
+     },
+     "mistral": null,
+     "neurons": 23.5,
+     "cached": false
+    },
+    {
+     "shot": 7,
+     "t": 10.5,
+     "app": false,
+     "llama": {
+      "ui_share": "none",
+      "headline": false,
+      "photo": true
+     },
+     "mistral": null,
+     "neurons": 23.5,
+     "cached": false
+    },
+    {
+     "shot": 8,
+     "t": 11.5,
+     "app": false,
+     "llama": {
+      "ui_share": "none",
+      "headline": false,
+      "photo": true
+     },
+     "mistral": null,
+     "neurons": 23.5,
+     "cached": false
+    },
+    {
+     "shot": 9,
+     "t": 13,
+     "app": true,
+     "llama": {
+      "ui_share": "most",
+      "headline": false,
+      "photo": false
+     },
+     "mistral": {
+      "ui_share": "part",
+      "headline": true,
+      "photo": true
+     },
+     "neurons": 43.9,
+     "cached": false
+    }
+   ],
+   "picked": null,
+   "cached": 0,
+   "held_by_hard_stop": 0,
+   "skipped": 0,
+   "truth": 12.27,
+   "error_s": 0,
+   "hit": true,
+   "note": ""
+  },
+  {
+   "id": "faultrehearsal-v4",
+   "set": "dev",
+   "ref": "faultrehearsal-v4__ref1.png",
+   "status": "found",
+   "error": null,
+   "answer": 14.633333333333333,
+   "looks": 6,
+   "calls": 7,
+   "neurons": 161.4,
+   "http_errors": 0,
+   "shots": 46,
+   "ms": 87732,
+   "verdicts": [
+    {
+     "shot": 0,
+     "t": 0.5,
+     "app": false,
+     "llama": {
+      "ui_share": "most",
+      "headline": true,
+      "photo": false
+     },
+     "mistral": null,
+     "neurons": 23.5,
+     "cached": false
+    },
+    {
+     "shot": 1,
+     "t": 5,
+     "app": false,
+     "llama": {
+      "ui_share": "most",
+      "headline": true,
+      "photo": false
+     },
+     "mistral": null,
+     "neurons": 23.5,
+     "cached": false
+    },
+    {
+     "shot": 2,
+     "t": 6,
+     "app": false,
+     "llama": {
+      "ui_share": "most",
+      "headline": true,
+      "photo": false
+     },
+     "mistral": null,
+     "neurons": 23.5,
+     "cached": false
+    },
+    {
+     "shot": 3,
+     "t": 9,
+     "app": false,
+     "llama": {
+      "ui_share": "most",
+      "headline": true,
+      "photo": false
+     },
+     "mistral": null,
+     "neurons": 23.5,
+     "cached": false
+    },
+    {
+     "shot": 4,
+     "t": 10,
+     "app": false,
+     "llama": {
+      "ui_share": "all",
+      "headline": true,
+      "photo": false
+     },
+     "mistral": null,
+     "neurons": 23.5,
+     "cached": false
+    },
+    {
+     "shot": 5,
+     "t": 16,
+     "app": true,
+     "llama": {
+      "ui_share": "all",
+      "headline": false,
+      "photo": false
+     },
+     "mistral": {
+      "ui_share": "all",
+      "headline": false,
+      "photo": false
+     },
+     "neurons": 43.9,
+     "cached": false
+    }
+   ],
+   "picked": null,
+   "cached": 0,
+   "held_by_hard_stop": 0,
+   "skipped": 0,
+   "truth": 9.33,
+   "error_s": 5.3,
+   "hit": false,
+   "note": ""
+  },
+  {
+   "id": "graphhacks-yt",
+   "set": "dev",
+   "ref": "graphhacks-yt__ref1.png",
+   "status": "found",
+   "error": null,
+   "answer": 16.033333333333335,
+   "looks": 4,
+   "calls": 8,
+   "neurons": 175.6,
+   "http_errors": 0,
+   "shots": 21,
+   "ms": 32261,
+   "verdicts": [
+    {
+     "shot": 0,
+     "t": 0.5,
+     "app": false,
+     "llama": {
+      "ui_share": "most",
+      "headline": false,
+      "photo": false
+     },
+     "mistral": {
+      "ui_share": "none",
+      "headline": true,
+      "photo": false
+     },
+     "neurons": 43.9,
+     "cached": false
+    },
+    {
+     "shot": 1,
+     "t": 6.5,
+     "app": false,
+     "llama": {
+      "ui_share": "most",
+      "headline": false,
+      "photo": false
+     },
+     "mistral": {
+      "ui_share": "none",
+      "headline": true,
+      "photo": false
+     },
+     "neurons": 43.9,
+     "cached": false
+    },
+    {
+     "shot": 2,
+     "t": 12.5,
+     "app": false,
+     "llama": {
+      "ui_share": "most",
+      "headline": false,
+      "photo": false
+     },
+     "mistral": {
+      "ui_share": "none",
+      "headline": true,
+      "photo": false
+     },
+     "neurons": 43.9,
+     "cached": false
+    },
+    {
+     "shot": 3,
+     "t": 18.5,
+     "app": true,
+     "llama": {
+      "ui_share": "all",
+      "headline": false,
+      "photo": false
+     },
+     "mistral": {
+      "ui_share": "all",
+      "headline": false,
+      "photo": false
+     },
+     "neurons": 43.9,
+     "cached": false
+    }
+   ],
+   "picked": null,
+   "cached": 0,
+   "held_by_hard_stop": 0,
+   "skipped": 0,
+   "truth": 16.2,
+   "error_s": -0.17,
+   "hit": true,
+   "note": ""
+  },
+  {
+   "id": "motiontracker-v1",
+   "set": "dev",
+   "ref": "motiontracker-v1__ref1.png",
+   "status": "found",
+   "error": null,
+   "answer": 13.633333333333333,
+   "looks": 4,
+   "calls": 4,
+   "neurons": 90.9,
+   "http_errors": 0,
+   "shots": 14,
+   "ms": 23728,
+   "verdicts": [
+    {
+     "shot": 0,
+     "t": 0.5,
+     "app": false,
+     "llama": {
+      "ui_share": "none",
+      "headline": true,
+      "photo": false
+     },
+     "mistral": null,
+     "neurons": 23.5,
+     "cached": false
+    },
+    {
+     "shot": 1,
+     "t": 6.5,
+     "app": false,
+     "llama": {
+      "ui_share": "none",
+      "headline": true,
+      "photo": false
+     },
+     "mistral": null,
+     "neurons": 0,
+     "cached": true
+    },
+    {
+     "shot": 2,
+     "t": 12.5,
+     "app": false,
+     "llama": {
+      "ui_share": "none",
+      "headline": true,
+      "photo": false
+     },
+     "mistral": null,
+     "neurons": 23.5,
+     "cached": false
+    },
+    {
+     "shot": 3,
+     "t": 18.5,
+     "app": true,
+     "llama": {
+      "ui_share": "most",
+      "headline": false,
+      "photo": false
+     },
+     "mistral": {
+      "ui_share": "part",
+      "headline": true,
+      "photo": false
+     },
+     "neurons": 43.9,
+     "cached": false
+    }
+   ],
+   "picked": null,
+   "cached": 1,
+   "held_by_hard_stop": 0,
+   "skipped": 0,
+   "truth": 13.62,
+   "error_s": 0.01,
+   "hit": true,
+   "note": ""
+  },
+  {
+   "id": "boardclerk-v06",
+   "set": "dev",
+   "ref": "boardclerk-v06__ref1.png",
+   "status": "found",
+   "error": null,
+   "answer": 0,
+   "looks": 1,
+   "calls": 2,
+   "neurons": 43.9,
+   "http_errors": 0,
+   "shots": 49,
+   "ms": 34723,
+   "verdicts": [
+    {
+     "shot": 0,
+     "t": 0.5,
+     "app": true,
+     "llama": {
+      "ui_share": "most",
+      "headline": false,
+      "photo": false
+     },
+     "mistral": {
+      "ui_share": "most",
+      "headline": true,
+      "photo": false
+     },
+     "neurons": 43.9,
+     "cached": false
+    }
+   ],
+   "picked": null,
+   "cached": 0,
+   "held_by_hard_stop": 0,
+   "skipped": 0,
+   "truth": 0,
+   "error_s": 0,
+   "hit": true,
+   "note": ""
+  },
+  {
+   "id": "motiontracker-v5",
+   "set": "dev",
+   "ref": "motiontracker-v5__ref1.png",
+   "status": "found",
+   "error": null,
+   "answer": 5.3,
+   "looks": 2,
+   "calls": 3,
+   "neurons": 67.4,
+   "http_errors": 0,
+   "shots": 17,
+   "ms": 34260,
+   "verdicts": [
+    {
+     "shot": 0,
+     "t": 0.5,
+     "app": false,
+     "llama": {
+      "ui_share": "all",
+      "headline": true,
+      "photo": false
+     },
+     "mistral": null,
+     "neurons": 23.5,
+     "cached": false
+    },
+    {
+     "shot": 1,
+     "t": 6,
+     "app": true,
+     "llama": {
+      "ui_share": "most",
+      "headline": false,
+      "photo": false
+     },
+     "mistral": {
+      "ui_share": "part",
+      "headline": true,
+      "photo": false
+     },
+     "neurons": 43.9,
+     "cached": false
+    }
+   ],
+   "picked": null,
+   "cached": 0,
+   "held_by_hard_stop": 0,
+   "skipped": 0,
+   "truth": 0,
+   "error_s": 5.3,
+   "hit": false,
+   "note": ""
+  },
+  {
+   "id": "rcv-yt",
+   "set": "rcv",
+   "ref": "boardclerk-v06__ref1.png",
+   "status": "found",
+   "error": null,
+   "answer": 53.5,
+   "looks": 9,
+   "calls": 10,
+   "neurons": 231.9,
+   "http_errors": 0,
+   "shots": 17,
+   "ms": 28849,
+   "verdicts": [
+    {
+     "shot": 0,
+     "t": 0.5,
+     "app": false,
+     "llama": {
+      "ui_share": "none",
+      "headline": true,
+      "photo": false
+     },
+     "mistral": null,
+     "neurons": 23.5,
+     "cached": false
+    },
+    {
+     "shot": 1,
+     "t": 6.5,
+     "app": false,
+     "llama": {
+      "ui_share": "none",
+      "headline": true,
+      "photo": false
+     },
+     "mistral": null,
+     "neurons": 23.5,
+     "cached": false
+    },
+    {
+     "shot": 2,
+     "t": 12.5,
+     "app": false,
+     "llama": {
+      "ui_share": "none",
+      "headline": true,
+      "photo": false
+     },
+     "mistral": null,
+     "neurons": 23.5,
+     "cached": false
+    },
+    {
+     "shot": 3,
+     "t": 18.5,
+     "app": false,
+     "llama": {
+      "ui_share": "none",
+      "headline": true,
+      "photo": false
+     },
+     "mistral": null,
+     "neurons": 23.5,
+     "cached": false
+    },
+    {
+     "shot": 4,
+     "t": 24.5,
+     "app": false,
+     "llama": {
+      "ui_share": "none",
+      "headline": true,
+      "photo": false
+     },
+     "mistral": null,
+     "neurons": 23.5,
+     "cached": false
+    },
+    {
+     "shot": 5,
+     "t": 30,
+     "app": false,
+     "llama": {
+      "ui_share": "part",
+      "headline": true,
+      "photo": false
+     },
+     "mistral": null,
+     "neurons": 23.5,
+     "cached": false
+    },
+    {
+     "shot": 6,
+     "t": 31,
+     "app": false,
+     "llama": {
+      "ui_share": "none",
+      "headline": false,
+      "photo": false
+     },
+     "mistral": null,
+     "neurons": 23.5,
+     "cached": false
+    },
+    {
+     "shot": 7,
+     "t": 37,
+     "app": false,
+     "llama": {
+      "ui_share": "none",
+      "headline": false,
+      "photo": false
+     },
+     "mistral": null,
+     "neurons": 23.5,
+     "cached": false
+    },
+    {
+     "shot": 8,
+     "t": 40,
+     "app": false,
+     "skipped": "same_as_0"
+    },
+    {
+     "shot": 9,
+     "t": 44,
+     "app": false,
+     "skipped": "same_as_6"
+    },
+    {
+     "shot": 10,
+     "t": 49,
+     "app": false,
+     "skipped": "same_as_0"
+    },
+    {
+     "shot": 11,
+     "t": 54,
+     "app": true,
+     "llama": {
+      "ui_share": "all",
+      "headline": false,
+      "photo": false
+     },
+     "mistral": {
+      "ui_share": "all",
+      "headline": false,
+      "photo": false
+     },
+     "neurons": 43.9,
+     "cached": false
+    }
+   ],
+   "picked": null,
+   "cached": 0,
+   "held_by_hard_stop": 0,
+   "skipped": 3,
+   "truth": null,
+   "hit": false,
+   "error_s": null,
+   "note": "false positive: no app in this video"
+  }
+ ]
+}

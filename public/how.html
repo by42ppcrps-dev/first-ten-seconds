@@ -13,7 +13,7 @@
 <li>At the first confirmed shot, your browser steps through every frame of the video at its own frame rate (measured when the video loads, then snapped to the nearest standard rate such as 23.976, 25, 29.97 or 60) between the last "not yet" snapshot and the first "app" snapshot, and picks the first frame that looks more like the app than what came before. No model calls happen in this step.</li>
 </ol>
 <h2>Accuracy</h2>
-<p id="bench-note">Hit means within 1.0 second of the true first-app frame, marked frame by frame and frozen before any detection code was written. The table below comes from the browser benchmark (bench/run.mjs), which ran this page in Chrome on every video: 3 of 4 holdout videos, 5 of 6 dev videos, and no time returned for the video with no app.</p>
+<p id="bench-note">Hit means within 1.0 second of the true first-app frame, marked frame by frame and frozen before the tool was built. The table below comes from the browser benchmark (bench/run.mjs), which ran this page in Chrome on every video: 3 of 4 holdout videos, 5 of 6 dev videos, and no time returned for the video with no app.</p>
 <div id="bench-table"><table><thead><tr><th>Video</th><th>Set</th><th>Found</th><th>True frame</th><th>Result</th></tr></thead><tbody>
 <tr><td>h-<wbr>boardclerk-<wbr>v04<span class="set-tag">holdout</span></td><td>holdout</td><td>0.00</td><td>0.00</td><td class="hit">hit</td></tr>
 <tr><td>h-<wbr>motiontracker-<wbr>v3<span class="set-tag">holdout</span></td><td>holdout</td><td>0.00</td><td>0.00</td><td class="hit">hit</td></tr>
@@ -65,7 +65,7 @@ fetch("/data/bench.json").then(r => r.ok ? r.json() : null).then(d => {
   box.replaceChildren(table, cell("p", "Browser run " + d.date + ", commit " + d.commit + ".", "label"));
   const of = s => { const rs = d.rows.filter(x => x.set === s); return rs.filter(x => x.hit).length + " of " + rs.length; };
   const noApp = d.rows.filter(x => x.set === "rcv");
-  document.getElementById("bench-note").textContent = "Hit means within 1.0 second of the true first-app frame, marked frame by frame and frozen before any detection code was written. The table below comes from the browser benchmark (bench/run.mjs), which ran this page in Chrome on every video: " + of("holdout") + " holdout videos, " + of("dev") + " dev videos" + (noApp.length ? ", and " + (noApp.every(x => x.hit) ? "no time returned for the video with no app" : "a false positive on the video with no app") : "") + ".";
+  document.getElementById("bench-note").textContent = "Hit means within 1.0 second of the true first-app frame, marked frame by frame and frozen before the tool was built. The table below comes from the browser benchmark (bench/run.mjs), which ran this page in Chrome on every video: " + of("holdout") + " holdout videos, " + of("dev") + " dev videos" + (noApp.length ? ", and " + (noApp.every(x => x.hit) ? "no time returned for the video with no app" : "a false positive on the video with no app") : "") + ".";
 });
 </script>
 </main>

@@ -63,4 +63,6 @@ test("composite is 1024x288: ref left, frame right, black bars", () => {
   assert.deepEqual(at(10, 10), [255, 0, 0, 255]);
   assert.deepEqual(at(512 + 256, 144), [0, 0, 255, 255]);
   assert.deepEqual(at(512 + 10, 144), [0, 0, 0, 255]);
+  assert.deepEqual(c.refBox, { x: 0, y: 0, w: 512, h: 288 });
+  assert.deepEqual(c.frameBox, { x: 686, y: 0, w: 162, h: 288 });
 });

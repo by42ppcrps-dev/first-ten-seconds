@@ -126,7 +126,13 @@ async function run() {
     setStatus(`Found in ${state.looks} looks. Wrong shot? Click the first shot that shows your app.`, "ok");
   } else if (result.status === "none") {
     state.mode = "none";
-    setStatus("No shot in the first 3:00 showed the app full screen. If it is there, click its first shot.", "err");
+    // Shots that reached the color check (not black, uniform or a repeat): were most skipped by it?
+    const reached = result.verdicts.filter((x) => !x.skipped || x.skipped === "unlike_ref").length;
+    const unlike = result.verdicts.filter((x) => x.skipped === "unlike_ref").length, n = state.shots.length;
+    if (unlike && unlike * 2 > reached) {
+      const which = unlike === reached ? `None of the ${n} shots looked` : `${unlike} of the ${n} shots did not look`;
+      setStatus(`${which} enough like your screenshot to ask about. If the app is there, click its first shot.`, "err");
+    } else setStatus("No shot in the first 3:00 showed the app full screen. If it is there, click its first shot.", "err");
   } else {
     state.mode = "manual";
     setStatus(stopMessage(result.error, result.resetsAt), ["daily_cap", "ai_quota", "model_off"].includes(result.error) ? "busy" : "err");

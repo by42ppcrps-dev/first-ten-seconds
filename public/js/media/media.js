@@ -96,7 +96,7 @@ const refCache = new WeakMap();
 
 // 1024x288: reference letterboxed on the left, the frame ffmpeg -ss t would show on the right.
 // Cubic resample from native pixels, like the reference pipeline's ffmpeg composite. ms is the build time;
-// gate is the color similarity of the two halves before JPEG (engine/gate.js).
+// gate is the color similarity of the two halves' content boxes before JPEG (engine/gate.js).
 export async function composite(v, t, ref, rate) {
   await seek(v, frameMid(frameAtOrAfter(t, rate), rate));
   const t0 = performance.now();
@@ -106,7 +106,7 @@ export async function composite(v, t, ref, rate) {
   c.width = px.width; c.height = px.height;
   c.getContext("2d").putImageData(new ImageData(px.data, px.width, px.height), 0, 0);
   const image = c.toDataURL("image/jpeg", 0.92);
-  return { image, gate: halfSimilarity(px.data, px.width, px.height), ms: Math.round(performance.now() - t0) };
+  return { image, gate: halfSimilarity(px.data, px.width, px.height, px.refBox, px.frameBox), ms: Math.round(performance.now() - t0) };
 }
 
 // Step through every real frame (at the video's rate) from the last NO time to the YES time.

@@ -70,12 +70,14 @@ export function padOffset(outer, inner, even) {
 
 // 1024x288 RGBA: ref letterboxed in the left half, frame in the right half, black elsewhere.
 // ref and frame are { data, width, height } (RGBA). The frame is 4:2:0 video, the ref an RGB image.
+// refBox and frameBox are each image's content rectangle { x, y, w, h } in composite pixels, padding excluded.
 export function compositePixels(ref, frame) {
   const W = HALF_W * 2, data = new Uint8ClampedArray(W * HALF_H * 4);
   for (let p = 3; p < data.length; p += 4) data[p] = 255;
-  [[ref, 0, false], [frame, HALF_W, true]].forEach(([img, left, even]) => {
-    const { w, h } = fitSize(img.width, img.height);
-    resampleInto(img.data, img.width, img.height, w, h, data, W, left + padOffset(HALF_W, w, even), padOffset(HALF_H, h, even));
+  const [refBox, frameBox] = [[ref, 0, false], [frame, HALF_W, true]].map(([img, left, even]) => {
+    const { w, h } = fitSize(img.width, img.height), x = left + padOffset(HALF_W, w, even), y = padOffset(HALF_H, h, even);
+    resampleInto(img.data, img.width, img.height, w, h, data, W, x, y);
+    return { x, y, w, h };
   });
-  return { data, width: W, height: HALF_H };
+  return { data, width: W, height: HALF_H, refBox, frameBox };
 }

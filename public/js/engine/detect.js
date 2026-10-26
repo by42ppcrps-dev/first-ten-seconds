@@ -43,6 +43,7 @@ export function refinePick(frames, yesGrid, noGrid, list) {
 // Walk shots in order. look(shot) resolves to { app } or throws; an error is not a NO.
 // refine(noT, yesT) resolves to the answer time. Black or near-uniform shots, and shots that start on a
 // real cut and look nearly identical to one already judged, skip the model. Cached answers ({ cached: true }) do not count as looks.
+// look() may answer { skipped } without asking the model (the local gate); that is a NO and not a look.
 export async function detect({ shots, look, refine, onShot = () => {}, maxLooks = MAX_LOOKS_PER_VIDEO }) {
   let lastNo = null, looks = 0;
   const verdicts = [], judged = [];
@@ -66,10 +67,15 @@ export async function detect({ shots, look, refine, onShot = () => {}, maxLooks 
         onShot(shot, null, verdicts);
         return { status: "error", error: err.code || "look_failed", message: err.message, resetsAt: err.resetsAt || null, failedShot: shot.index, verdicts, lastNo, looks };
       }
-      if (!res.cached) looks++;
-      app = !!res.app;
-      if (shot.grid) judged.push({ grid: shot.grid, app, shot: shot.index });
-      verdicts.push({ shot: shot.index, t: shot.t, app, llama: res.llama, mistral: res.mistral, neurons: res.neurons_used_estimate, cached: !!res.cached });
+      if (res.skipped) {
+        app = false;
+        verdicts.push({ shot: shot.index, t: shot.t, app, skipped: res.skipped, gate: res.gate });
+      } else {
+        if (!res.cached) looks++;
+        app = !!res.app;
+        if (shot.grid) judged.push({ grid: shot.grid, app, shot: shot.index });
+        verdicts.push({ shot: shot.index, t: shot.t, app, llama: res.llama, mistral: res.mistral, neurons: res.neurons_used_estimate, cached: !!res.cached, gate: res.gate });
+      }
     }
     onShot(shot, app, verdicts);
     if (app) {

@@ -3,6 +3,7 @@ import { buildShots, detect, bracketForPick } from "./engine/detect.js";
 import { rateInfo, frameAt, smpte, display, seconds, RATE_LABELS } from "./engine/timecode.js";
 import { buildEDL, buildXMEML, buildFCPXML } from "./engine/export.js";
 import { loadVideo, estimateFps, sample, composite, refine } from "./media/media.js";
+import { unlikeRef } from "./engine/gate.js";
 import { look, stopMessage, LookError } from "./api.js";
 import { renderTimeline } from "./timeline.js";
 
@@ -106,11 +107,13 @@ async function run() {
       setStatus(`Looking at shot ${shot.index + 1} of ${state.shots.length} at ${display(shot.t)}`);
       const c = await composite(v, shot.t, state.ref, rateInfo(state.fps));
       state.compositeMs.push(c.ms);
+      const gate = Math.round(c.gate * 1000) / 1000;
+      if (unlikeRef(c.gate)) return { app: false, skipped: "unlike_ref", gate };
       state.looks++;
       const r = await look(c.image, videoId);
       if (!live()) throw new LookError("cancelled");
       state.neurons += r.neurons_used_estimate || 0;
-      return r;
+      return { ...r, gate };
     },
     refine: (noT, yesT) => { const r = rateInfo(state.fps); setStatus("Finding the exact frame at " + r.label + " fps between " + display(noT) + " and " + display(yesT) + "."); return refine(v, noT, yesT, r); },
     onShot: (shot, app) => { if (!live()) return; shot.app = app; if (app === null) shot.error = true; draw(); },

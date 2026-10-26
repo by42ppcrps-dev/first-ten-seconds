@@ -3,6 +3,7 @@ import { gridFromRGBA, meanAbsDiff } from "../engine/grid.js";
 import { refineFrames, frameStart } from "../engine/detect.js";
 import { gridFrame, frameAtOrAfter, frameMid } from "../engine/frames.js";
 import { compositePixels } from "../engine/resample.js";
+import { halfSimilarity } from "../engine/gate.js";
 
 const GRAB_W = 256, GRAB_H = 144; // 8x the 32x18 grid, then area-averaged
 const EPS = 0.001;
@@ -94,7 +95,8 @@ function pixelsOf(src, w, h) {
 const refCache = new WeakMap();
 
 // 1024x288: reference letterboxed on the left, the frame ffmpeg -ss t would show on the right.
-// Cubic resample from native pixels, like the reference pipeline's ffmpeg composite. ms is the build time.
+// Cubic resample from native pixels, like the reference pipeline's ffmpeg composite. ms is the build time;
+// gate is the color similarity of the two halves before JPEG (engine/gate.js).
 export async function composite(v, t, ref, rate) {
   await seek(v, frameMid(frameAtOrAfter(t, rate), rate));
   const t0 = performance.now();
@@ -104,7 +106,7 @@ export async function composite(v, t, ref, rate) {
   c.width = px.width; c.height = px.height;
   c.getContext("2d").putImageData(new ImageData(px.data, px.width, px.height), 0, 0);
   const image = c.toDataURL("image/jpeg", 0.92);
-  return { image, ms: Math.round(performance.now() - t0) };
+  return { image, gate: halfSimilarity(px.data, px.width, px.height), ms: Math.round(performance.now() - t0) };
 }
 
 // Step through every real frame (at the video's rate) from the last NO time to the YES time.
